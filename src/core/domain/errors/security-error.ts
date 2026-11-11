@@ -3,7 +3,7 @@
  * @module core/domain/errors/security-error
  */
 
-import { DomainError } from "./domain-error.ts";
+import { DomainError } from "@errors/domain-error.ts";
 
 export class PathTraversalSecurityError extends DomainError {
   public readonly code = "PATH_TRAVERSAL_DETECTED";

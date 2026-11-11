@@ -3,10 +3,10 @@
  * @module infrastructure/storage/action-log.repository
  */
 
-import type { IActionLogRepository } from "../../core/interfaces/action-log-repository.interface.ts";
-import type { ActionLog, CreateActionLogDto } from "../../core/domain/entities/action-log.ts";
-import type { DatabaseConnection } from "./database.ts";
-import { SecretMasker } from "../../core/security/secret-masker.ts";
+import type { IActionLogRepository } from "@interfaces/action-log-repository.interface.ts";
+import type { ActionLog, CreateActionLogDto } from "@entities/action-log.ts";
+import type { DatabaseConnection } from "@storage/database.ts";
+import { SecretMasker } from "@core/security/secret-masker.ts";
 
 export class ActionLogRepository implements IActionLogRepository {
   constructor(private readonly connection: DatabaseConnection) {}

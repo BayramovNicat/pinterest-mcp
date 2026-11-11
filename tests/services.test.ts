@@ -1,23 +1,23 @@
 import { describe, test, expect, beforeEach, afterEach } from "bun:test";
-import { DatabaseConnection } from "../src/infrastructure/storage/database.ts";
-import { ActionLogRepository } from "../src/infrastructure/storage/action-log.repository.ts";
-import { CacheRepository } from "../src/infrastructure/storage/cache.repository.ts";
-import { PinPublishingService } from "../src/application/services/pin-publishing.service.ts";
-import { SeoOptimizerService } from "../src/application/services/seo-optimizer.service.ts";
-import { BoardManagementService } from "../src/application/services/board-management.service.ts";
-import { AccountService } from "../src/application/services/account.service.ts";
+import { DatabaseConnection } from "@storage/database.ts";
+import { ActionLogRepository } from "@storage/action-log.repository.ts";
+import { CacheRepository } from "@storage/cache.repository.ts";
+import { PinPublishingService } from "@services/pin-publishing.service.ts";
+import { SeoOptimizerService } from "@services/seo-optimizer.service.ts";
+import { BoardManagementService } from "@services/board-management.service.ts";
+import { AccountService } from "@services/account.service.ts";
 import type {
   IPinterestClient,
   CreateBoardParams,
   UpdateBoardParams,
   CreatePinParams,
   UpdatePinParams,
-} from "../src/core/interfaces/pinterest-client.interface.ts";
-import type { PinterestAccount } from "../src/core/domain/entities/account.ts";
-import type { PinterestBoard, PinterestBoardSection } from "../src/core/domain/entities/board.ts";
-import type { PinterestPin, PaginatedResult } from "../src/core/domain/entities/pin.ts";
-import type { RateLimitStatus } from "../src/core/domain/entities/analytics.ts";
-import type { PinterestMediaSource } from "../src/core/domain/value-objects/media-source.ts";
+} from "@interfaces/pinterest-client.interface.ts";
+import type { PinterestAccount } from "@entities/account.ts";
+import type { PinterestBoard, PinterestBoardSection } from "@entities/board.ts";
+import type { PinterestPin, PaginatedResult } from "@entities/pin.ts";
+import type { RateLimitStatus } from "@entities/analytics.ts";
+import type { PinterestMediaSource } from "@value-objects/media-source.ts";
 
 // Mock Pinterest Client for clean unit testing
 class MockPinterestClient implements IPinterestClient {

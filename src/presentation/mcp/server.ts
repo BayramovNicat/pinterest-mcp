@@ -5,25 +5,25 @@
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { PinterestClient } from "../../infrastructure/pinterest/pinterest-client.ts";
-import { DatabaseConnection } from "../../infrastructure/storage/database.ts";
-import { ActionLogRepository } from "../../infrastructure/storage/action-log.repository.ts";
-import { CacheRepository } from "../../infrastructure/storage/cache.repository.ts";
-import { PinPublishingService } from "../../application/services/pin-publishing.service.ts";
-import { BoardManagementService } from "../../application/services/board-management.service.ts";
-import { AccountService } from "../../application/services/account.service.ts";
-import { SeoOptimizerService } from "../../application/services/seo-optimizer.service.ts";
-import type { IPinterestClient } from "../../core/interfaces/pinterest-client.interface.ts";
-import type { IActionLogRepository } from "../../core/interfaces/action-log-repository.interface.ts";
-import type { ICacheRepository } from "../../core/interfaces/cache-repository.interface.ts";
+import { PinterestClient } from "@pinterest/pinterest-client.ts";
+import { DatabaseConnection } from "@storage/database.ts";
+import { ActionLogRepository } from "@storage/action-log.repository.ts";
+import { CacheRepository } from "@storage/cache.repository.ts";
+import { PinPublishingService } from "@services/pin-publishing.service.ts";
+import { BoardManagementService } from "@services/board-management.service.ts";
+import { AccountService } from "@services/account.service.ts";
+import { SeoOptimizerService } from "@services/seo-optimizer.service.ts";
+import type { IPinterestClient } from "@interfaces/pinterest-client.interface.ts";
+import type { IActionLogRepository } from "@interfaces/action-log-repository.interface.ts";
+import type { ICacheRepository } from "@interfaces/cache-repository.interface.ts";
 
-import { registerPinTools } from "./tools/pin.tools.ts";
-import { registerBoardTools } from "./tools/board.tools.ts";
-import { registerAnalyticsTools } from "./tools/analytics.tools.ts";
-import { registerAccountTools } from "./tools/account.tools.ts";
-import { registerSeoTools } from "./tools/seo.tools.ts";
-import { registerResources } from "./resources/pinterest.resources.ts";
-import { registerPrompts } from "./prompts/pinterest.prompts.ts";
+import { registerPinTools } from "@tools/pin.tools.ts";
+import { registerBoardTools } from "@tools/board.tools.ts";
+import { registerAnalyticsTools } from "@tools/analytics.tools.ts";
+import { registerAccountTools } from "@tools/account.tools.ts";
+import { registerSeoTools } from "@tools/seo.tools.ts";
+import { registerResources } from "@resources/pinterest.resources.ts";
+import { registerPrompts } from "@prompts/pinterest.prompts.ts";
 
 export interface CreateServerOptions {
   readonly client?: IPinterestClient;

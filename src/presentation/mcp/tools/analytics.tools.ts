@@ -4,12 +4,12 @@
  */
 
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { AccountService } from "../../../application/services/account.service.ts";
-import { SecretMasker } from "../../../core/security/secret-masker.ts";
+import type { AccountService } from "@services/account.service.ts";
+import { SecretMasker } from "@core/security/secret-masker.ts";
 import {
   GetPinAnalyticsInputSchema,
   GetAccountAnalyticsInputSchema,
-} from "../schemas/analytics.schemas.ts";
+} from "@schemas/analytics.schemas.ts";
 
 export function registerAnalyticsTools(server: McpServer, accountService: AccountService): void {
   // 1. Pin Analytics

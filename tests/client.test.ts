@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeAll, afterAll } from "bun:test";
-import { PinterestClient } from "../src/infrastructure/pinterest/pinterest-client.ts";
-import { PinterestApiError } from "../src/core/domain/errors/api-error.ts";
+import { PinterestClient } from "@pinterest/pinterest-client.ts";
+import { PinterestApiError } from "@errors/api-error.ts";
 
 interface InterceptedPinPayload {
   board_id?: string;

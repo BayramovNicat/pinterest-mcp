@@ -3,7 +3,7 @@
  * @module core/domain/errors/not-found-error
  */
 
-import { DomainError } from "./domain-error.ts";
+import { DomainError } from "@errors/domain-error.ts";
 
 export class ResourceNotFoundError extends DomainError {
   public readonly code = "RESOURCE_NOT_FOUND";

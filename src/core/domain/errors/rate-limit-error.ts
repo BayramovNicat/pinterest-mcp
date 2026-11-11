@@ -4,7 +4,7 @@
  * @module core/domain/errors/rate-limit-error
  */
 
-import { PinterestApiError } from "./api-error.ts";
+import { PinterestApiError } from "@errors/api-error.ts";
 
 export class RateLimitExceededError extends PinterestApiError {
   public override readonly code = "RATE_LIMIT_EXCEEDED";

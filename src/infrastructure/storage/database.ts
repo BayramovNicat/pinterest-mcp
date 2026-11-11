@@ -4,7 +4,7 @@
  */
 
 import { Database, Statement } from "bun:sqlite";
-import { runMigrations } from "./migrations.ts";
+import { runMigrations } from "@storage/migrations.ts";
 
 export interface DatabaseOptions {
   readonly dbPath?: string;

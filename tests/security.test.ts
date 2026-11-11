@@ -1,8 +1,8 @@
 import { describe, test, expect, beforeAll, afterAll } from "bun:test";
-import { PathSanitizer } from "../src/infrastructure/security/path-sanitizer.ts";
-import { SecretMasker } from "../src/core/security/secret-masker.ts";
-import { PathTraversalSecurityError } from "../src/core/domain/errors/security-error.ts";
-import { ValidationError } from "../src/core/domain/errors/validation-error.ts";
+import { PathSanitizer } from "@infrastructure/security/path-sanitizer.ts";
+import { SecretMasker } from "@core/security/secret-masker.ts";
+import { PathTraversalSecurityError } from "@errors/security-error.ts";
+import { ValidationError } from "@errors/validation-error.ts";
 import { resolve } from "node:path";
 
 describe("Security - Path Traversal Protection", () => {

@@ -4,10 +4,10 @@
  * @module infrastructure/pinterest/http-client
  */
 
-import type { RateLimitStatus } from "../../core/domain/entities/analytics.ts";
-import { PinterestAuthenticationError } from "../../core/domain/errors/authentication-error.ts";
-import { SecretMasker } from "../../core/security/secret-masker.ts";
-import { PinterestErrorMapper } from "./error-mapper.ts";
+import type { RateLimitStatus } from "@entities/analytics.ts";
+import { PinterestAuthenticationError } from "@errors/authentication-error.ts";
+import { SecretMasker } from "@core/security/secret-masker.ts";
+import { PinterestErrorMapper } from "@pinterest/error-mapper.ts";
 
 export interface HttpClientOptions {
   readonly baseUrl: string;

@@ -5,9 +5,9 @@
  * @module index
  */
 
-import { createPinterestMcpServer } from "./presentation/mcp/server.ts";
-import { startStdioServer } from "./infrastructure/server/stdio-transport.ts";
-import { startHttpServer } from "./infrastructure/server/http-server.ts";
+import { createPinterestMcpServer } from "@mcp/server.ts";
+import { startStdioServer } from "@server/stdio-transport.ts";
+import { startHttpServer } from "@server/http-server.ts";
 
 const args = process.argv.slice(2);
 const isHttpMode =

@@ -7,12 +7,12 @@ import type {
   IPinterestClient,
   PinAnalyticsParams,
   AccountAnalyticsParams,
-} from "../../core/interfaces/pinterest-client.interface.ts";
-import type { IActionLogRepository } from "../../core/interfaces/action-log-repository.interface.ts";
-import type { ICacheRepository } from "../../core/interfaces/cache-repository.interface.ts";
-import type { PinterestAccount } from "../../core/domain/entities/account.ts";
-import type { RateLimitStatus } from "../../core/domain/entities/analytics.ts";
-import type { ActionLog } from "../../core/domain/entities/action-log.ts";
+} from "@interfaces/pinterest-client.interface.ts";
+import type { IActionLogRepository } from "@interfaces/action-log-repository.interface.ts";
+import type { ICacheRepository } from "@interfaces/cache-repository.interface.ts";
+import type { PinterestAccount } from "@entities/account.ts";
+import type { RateLimitStatus } from "@entities/analytics.ts";
+import type { ActionLog } from "@entities/action-log.ts";
 
 export class AccountService {
   constructor(

@@ -3,7 +3,7 @@
  * @module core/domain/errors/validation-error
  */
 
-import { DomainError } from "./domain-error.ts";
+import { DomainError } from "@errors/domain-error.ts";
 
 export class ValidationError extends DomainError {
   public readonly code = "VALIDATION_ERROR";

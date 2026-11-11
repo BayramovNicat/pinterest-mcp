@@ -3,8 +3,8 @@
  * @module infrastructure/pinterest/types
  */
 
-import type { BoardPrivacy } from "../../core/domain/value-objects/privacy.ts";
-import type { PinterestMediaSource } from "../../core/domain/value-objects/media-source.ts";
+import type { BoardPrivacy } from "@value-objects/privacy.ts";
+import type { PinterestMediaSource } from "@value-objects/media-source.ts";
 
 export interface PinterestApiAccountDto {
   readonly id: string;

@@ -5,9 +5,9 @@
  */
 
 import { resolve, normalize, isAbsolute } from "node:path";
-import { PathTraversalSecurityError } from "../../core/domain/errors/security-error.ts";
-import { ValidationError } from "../../core/domain/errors/validation-error.ts";
-import type { ImageMimeType } from "../../core/domain/value-objects/media-source.ts";
+import { PathTraversalSecurityError } from "@errors/security-error.ts";
+import { ValidationError } from "@errors/validation-error.ts";
+import type { ImageMimeType } from "@value-objects/media-source.ts";
 
 export interface PathSanitizerOptions {
   /**

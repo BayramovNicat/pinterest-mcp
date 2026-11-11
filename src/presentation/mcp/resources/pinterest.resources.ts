@@ -5,9 +5,9 @@
  */
 
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { AccountService } from "../../../application/services/account.service.ts";
-import type { BoardManagementService } from "../../../application/services/board-management.service.ts";
-import { SecretMasker } from "../../../core/security/secret-masker.ts";
+import type { AccountService } from "@services/account.service.ts";
+import type { BoardManagementService } from "@services/board-management.service.ts";
+import { SecretMasker } from "@core/security/secret-masker.ts";
 
 export function registerResources(
   server: McpServer,

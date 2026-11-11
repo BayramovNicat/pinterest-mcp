@@ -3,7 +3,7 @@
  * @module core/domain/errors/api-error
  */
 
-import { DomainError } from "./domain-error.ts";
+import { DomainError } from "@errors/domain-error.ts";
 
 export class PinterestApiError extends DomainError {
   public readonly code: string = "PINTEREST_API_ERROR";

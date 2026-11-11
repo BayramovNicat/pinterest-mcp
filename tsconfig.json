@@ -25,6 +25,32 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
+    "noPropertyAccessFromIndexSignature": false,
+
+    // Path aliases
+    "paths": {
+      "@/*": ["./src/*"],
+      "@core/*": ["./src/core/*"],
+      "@domain/*": ["./src/core/domain/*"],
+      "@entities/*": ["./src/core/domain/entities/*"],
+      "@value-objects/*": ["./src/core/domain/value-objects/*"],
+      "@errors/*": ["./src/core/domain/errors/*"],
+      "@interfaces/*": ["./src/core/interfaces/*"],
+      "@application/*": ["./src/application/*"],
+      "@services/*": ["./src/application/services/*"],
+      "@infrastructure/*": ["./src/infrastructure/*"],
+      "@config/*": ["./src/infrastructure/config/*"],
+      "@pinterest/*": ["./src/infrastructure/pinterest/*"],
+      "@storage/*": ["./src/infrastructure/storage/*"],
+      "@server/*": ["./src/infrastructure/server/*"],
+      "@presentation/*": ["./src/presentation/*"],
+      "@mcp/*": ["./src/presentation/mcp/*"],
+      "@tools/*": ["./src/presentation/mcp/tools/*"],
+      "@schemas/*": ["./src/presentation/mcp/schemas/*"],
+      "@resources/*": ["./src/presentation/mcp/resources/*"],
+      "@prompts/*": ["./src/presentation/mcp/prompts/*"],
+      "@auth/*": ["./src/auth/*"],
+      "@tests/*": ["./tests/*"]
+    }
   }
 }

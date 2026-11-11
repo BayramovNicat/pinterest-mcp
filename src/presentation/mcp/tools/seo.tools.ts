@@ -4,8 +4,8 @@
  */
 
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { SeoOptimizerService } from "../../../application/services/seo-optimizer.service.ts";
-import { OptimizePinMetadataInputSchema } from "../schemas/seo.schemas.ts";
+import type { SeoOptimizerService } from "@services/seo-optimizer.service.ts";
+import { OptimizePinMetadataInputSchema } from "@schemas/seo.schemas.ts";
 
 export function registerSeoTools(server: McpServer, seoService: SeoOptimizerService): void {
   server.registerTool(

@@ -1,7 +1,7 @@
 import { describe, test, expect } from "bun:test";
-import { createPinterestMcpServer } from "../src/presentation/mcp/server.ts";
-import { DatabaseConnection } from "../src/infrastructure/storage/database.ts";
-import { PinterestClient } from "../src/infrastructure/pinterest/pinterest-client.ts";
+import { createPinterestMcpServer } from "@mcp/server.ts";
+import { DatabaseConnection } from "@storage/database.ts";
+import { PinterestClient } from "@pinterest/pinterest-client.ts";
 
 interface RegisteredToolEntry {
   handler: (args: Record<string, unknown>) => Promise<{

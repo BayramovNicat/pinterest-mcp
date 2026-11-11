@@ -3,8 +3,8 @@
  * @module infrastructure/storage/cache.repository
  */
 
-import type { ICacheRepository } from "../../core/interfaces/cache-repository.interface.ts";
-import type { DatabaseConnection } from "./database.ts";
+import type { ICacheRepository } from "@interfaces/cache-repository.interface.ts";
+import type { DatabaseConnection } from "@storage/database.ts";
 
 interface CacheRow {
   readonly value: string;

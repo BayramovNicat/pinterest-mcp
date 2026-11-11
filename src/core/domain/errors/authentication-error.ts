@@ -4,7 +4,7 @@
  * @module core/domain/errors/authentication-error
  */
 
-import { PinterestApiError } from "./api-error.ts";
+import { PinterestApiError } from "@errors/api-error.ts";
 
 export class PinterestAuthenticationError extends PinterestApiError {
   public override readonly code = "PINTEREST_AUTHENTICATION_ERROR";

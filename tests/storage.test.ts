@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, afterEach } from "bun:test";
-import { DatabaseConnection } from "../src/infrastructure/storage/database.ts";
-import { ActionLogRepository } from "../src/infrastructure/storage/action-log.repository.ts";
-import { CacheRepository } from "../src/infrastructure/storage/cache.repository.ts";
+import { DatabaseConnection } from "@storage/database.ts";
+import { ActionLogRepository } from "@storage/action-log.repository.ts";
+import { CacheRepository } from "@storage/cache.repository.ts";
 
 describe("Storage - DatabaseConnection & Repositories", () => {
   let db: DatabaseConnection;

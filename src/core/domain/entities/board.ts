@@ -3,7 +3,7 @@
  * @module core/domain/entities/board
  */
 
-import type { BoardPrivacy } from "../value-objects/privacy.ts";
+import type { BoardPrivacy } from "@value-objects/privacy.ts";
 
 export interface PinterestBoardOwner {
   readonly username: string;

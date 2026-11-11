@@ -5,7 +5,7 @@
 
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { DatabaseConnection } from "../storage/database.ts";
+import type { DatabaseConnection } from "@storage/database.ts";
 
 export interface StdioServerOptions {
   readonly server: McpServer;

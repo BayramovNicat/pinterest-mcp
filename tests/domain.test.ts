@@ -3,16 +3,16 @@ import {
   createBoardId,
   createPinId,
   createBoardSectionId,
-} from "../src/core/domain/value-objects/ids.ts";
-import { createHexColor, isValidHexColor } from "../src/core/domain/value-objects/colors.ts";
-import { isValidBoardPrivacy, BOARD_PRIVACY_LEVELS } from "../src/core/domain/value-objects/privacy.ts";
-import { DomainError } from "../src/core/domain/errors/domain-error.ts";
-import { PinterestApiError } from "../src/core/domain/errors/api-error.ts";
-import { PinterestAuthenticationError } from "../src/core/domain/errors/authentication-error.ts";
-import { RateLimitExceededError } from "../src/core/domain/errors/rate-limit-error.ts";
-import { ResourceNotFoundError } from "../src/core/domain/errors/not-found-error.ts";
-import { ValidationError } from "../src/core/domain/errors/validation-error.ts";
-import { PathTraversalSecurityError } from "../src/core/domain/errors/security-error.ts";
+} from "@value-objects/ids.ts";
+import { createHexColor, isValidHexColor } from "@value-objects/colors.ts";
+import { isValidBoardPrivacy, BOARD_PRIVACY_LEVELS } from "@value-objects/privacy.ts";
+import { DomainError } from "@errors/domain-error.ts";
+import { PinterestApiError } from "@errors/api-error.ts";
+import { PinterestAuthenticationError } from "@errors/authentication-error.ts";
+import { RateLimitExceededError } from "@errors/rate-limit-error.ts";
+import { ResourceNotFoundError } from "@errors/not-found-error.ts";
+import { ValidationError } from "@errors/validation-error.ts";
+import { PathTraversalSecurityError } from "@errors/security-error.ts";
 
 describe("Core Domain - Value Objects", () => {
   test("creates branded IDs with validation", () => {

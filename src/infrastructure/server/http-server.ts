@@ -13,8 +13,8 @@ import {
   type OutgoingHttpHeaders,
 } from "node:http";
 import { Socket } from "node:net";
-import type { DatabaseConnection } from "../storage/database.ts";
-import type { RateLimitStatus } from "../../core/domain/entities/analytics.ts";
+import type { DatabaseConnection } from "@storage/database.ts";
+import type { RateLimitStatus } from "@entities/analytics.ts";
 
 export interface HttpServerOptions {
   readonly server: McpServer;

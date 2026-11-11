@@ -1,10 +1,10 @@
 import { describe, test, expect } from "bun:test";
-import { ResilientHttpClient } from "../src/infrastructure/pinterest/http-client.ts";
-import { PinterestErrorMapper } from "../src/infrastructure/pinterest/error-mapper.ts";
-import { PinterestAuthenticationError } from "../src/core/domain/errors/authentication-error.ts";
-import { RateLimitExceededError } from "../src/core/domain/errors/rate-limit-error.ts";
-import { ResourceNotFoundError } from "../src/core/domain/errors/not-found-error.ts";
-import { ValidationError } from "../src/core/domain/errors/validation-error.ts";
+import { ResilientHttpClient } from "@pinterest/http-client.ts";
+import { PinterestErrorMapper } from "@pinterest/error-mapper.ts";
+import { PinterestAuthenticationError } from "@errors/authentication-error.ts";
+import { RateLimitExceededError } from "@errors/rate-limit-error.ts";
+import { ResourceNotFoundError } from "@errors/not-found-error.ts";
+import { ValidationError } from "@errors/validation-error.ts";
 
 describe("Infrastructure - ResilientHttpClient & Error Mapper", () => {
   test("PinterestErrorMapper maps 401 and 403 to PinterestAuthenticationError", () => {

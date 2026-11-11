@@ -3,14 +3,14 @@
  * @module infrastructure/pinterest/error-mapper
  */
 
-import { DomainError } from "../../core/domain/errors/domain-error.ts";
-import { PinterestAuthenticationError } from "../../core/domain/errors/authentication-error.ts";
-import { RateLimitExceededError } from "../../core/domain/errors/rate-limit-error.ts";
-import { ResourceNotFoundError } from "../../core/domain/errors/not-found-error.ts";
-import { ValidationError } from "../../core/domain/errors/validation-error.ts";
-import { PinterestApiError } from "../../core/domain/errors/api-error.ts";
-import { SecretMasker } from "../../core/security/secret-masker.ts";
-import type { PinterestApiErrorPayload } from "./types.ts";
+import { DomainError } from "@errors/domain-error.ts";
+import { PinterestAuthenticationError } from "@errors/authentication-error.ts";
+import { RateLimitExceededError } from "@errors/rate-limit-error.ts";
+import { ResourceNotFoundError } from "@errors/not-found-error.ts";
+import { ValidationError } from "@errors/validation-error.ts";
+import { PinterestApiError } from "@errors/api-error.ts";
+import { SecretMasker } from "@core/security/secret-masker.ts";
+import type { PinterestApiErrorPayload } from "@pinterest/types.ts";
 
 export class PinterestErrorMapper {
   /**

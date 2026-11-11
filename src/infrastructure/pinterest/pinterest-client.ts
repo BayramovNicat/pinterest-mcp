@@ -15,22 +15,22 @@ import type {
   UpdatePinParams,
   PinAnalyticsParams,
   AccountAnalyticsParams,
-} from "../../core/interfaces/pinterest-client.interface.ts";
-import type { PinterestAccount } from "../../core/domain/entities/account.ts";
-import type { PinterestBoard, PinterestBoardSection } from "../../core/domain/entities/board.ts";
-import type { PinterestPin, PaginatedResult } from "../../core/domain/entities/pin.ts";
-import type { RateLimitStatus } from "../../core/domain/entities/analytics.ts";
-import type { PinterestMediaSource } from "../../core/domain/value-objects/media-source.ts";
-import { ResilientHttpClient } from "./http-client.ts";
-import { PathSanitizer } from "../security/path-sanitizer.ts";
-import { SecretMasker } from "../../core/security/secret-masker.ts";
+} from "@interfaces/pinterest-client.interface.ts";
+import type { PinterestAccount } from "@entities/account.ts";
+import type { PinterestBoard, PinterestBoardSection } from "@entities/board.ts";
+import type { PinterestPin, PaginatedResult } from "@entities/pin.ts";
+import type { RateLimitStatus } from "@entities/analytics.ts";
+import type { PinterestMediaSource } from "@value-objects/media-source.ts";
+import { ResilientHttpClient } from "@pinterest/http-client.ts";
+import { PathSanitizer } from "@infrastructure/security/path-sanitizer.ts";
+import { SecretMasker } from "@core/security/secret-masker.ts";
 import type {
   PinterestApiAccountDto,
   PinterestApiBoardDto,
   PinterestApiBoardSectionDto,
   PinterestApiPinDto,
   PinterestApiPaginatedResponse,
-} from "./types.ts";
+} from "@pinterest/types.ts";
 
 export interface PinterestClientConfig {
   readonly accessToken?: string;
