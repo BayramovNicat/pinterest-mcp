@@ -1,10 +1,17 @@
 # dependencies (bun install)
 node_modules
 
-# output
+# build & output
 out
 dist
 *.tgz
+
+# SQLite databases & WAL files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
 
 # code coverage
 coverage
@@ -12,10 +19,10 @@ coverage
 
 # logs
 logs
-_.log
-report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
+*.log
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
-# dotenv environment variable files
+# environment variable files
 .env
 .env.development.local
 .env.test.local
@@ -27,8 +34,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .cache
 *.tsbuildinfo
 
-# IntelliJ based IDEs
+# IDEs & OS
 .idea
-
-# Finder (MacOS) folder config
+.vscode
 .DS_Store

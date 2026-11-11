@@ -10,28 +10,32 @@ The codebase is organized into clean, decoupled layers following Domain-Driven D
 
 ```
 src/
-├── core/domain/                    # Enterprise Business Rules & Entities
-│   ├── entities/                   # Account, Board, Pin, Analytics, ActionLog
-│   ├── value-objects/              # BoardId, PinId, MediaPayload (Discriminated Unions), HexColor, BoardPrivacy
-│   ├── errors/                     # PinterestAuthenticationError, RateLimitExceededError, etc.
-│   └── interfaces/                 # IPinterestClient, IActionLogRepository, ICacheRepository
-│
-├── infrastructure/                 # Low-level frameworks, storage, network & runtime adapters
-│   ├── config/                     # Strict Zod environment validation (Bun.env)
-│   ├── security/                   # PathSanitizer (Path Traversal Guard), SecretMasker (Redaction)
-│   ├── storage/                    # bun:sqlite in WAL mode, prepared statement caching, migrations
-│   ├── pinterest/                  # ResilientHttpClient (exponential backoff, jitter, rate-limit tracking)
-│   └── server/                     # Transport orchestration (STDIO & Bun.serve SSE/Streamable HTTP)
+├── index.ts                        # Executable CLI entry point (STDIO & HTTP/SSE)
+├── auth/
+│   └── oauth.ts                    # Native Bun.serve() OAuth 2.0 callback & token exchange
+├── core/
+│   ├── domain/                     # Pure Enterprise Business Rules & Domain Model
+│   │   ├── entities/               # Account, Board, Pin, Analytics, ActionLog
+│   │   ├── value-objects/          # BoardId, PinId, MediaPayload (Discriminated Unions), HexColor, BoardPrivacy
+│   │   └── errors/                 # DomainError hierarchy (Auth, RateLimit, NotFound, Validation, Security)
+│   └── interfaces/                 # Ports: IPinterestClient, IActionLogRepository, ICacheRepository
 │
 ├── application/                    # Application Business Rules & Use Cases
 │   └── services/                   # PinPublishingService, BoardManagementService, SeoOptimizerService, AccountService
 │
-└── presentation/mcp/               # Model Context Protocol Interface Adapter
-    ├── schemas/                    # Strict Zod schemas with TypeScript inference
-    ├── tools/                      # Tool handlers registered with server.registerTool
-    ├── resources/                  # Resource handlers registered with server.registerResource
-    ├── prompts/                    # Agent prompt workflows registered with server.registerPrompt
-    └── server.ts                   # Composition root & container factory
+├── infrastructure/                 # Concrete Secondary Adapters
+│   ├── config/                     # Strict Zod environment validation (env.ts)
+│   ├── security/                   # PathSanitizer (CWE-22 Guard), SecretMasker (Credential Redaction)
+│   ├── storage/                    # bun:sqlite in WAL mode, prepared statement caching, migrations
+│   ├── pinterest/                  # ResilientHttpClient (exponential backoff, jitter, rate-limit tracking)
+│   └── server/                     # Transport orchestration (STDIO & Bun.serve SSE/HTTP)
+│
+└── presentation/mcp/               # Primary MCP Protocol Adapters
+    ├── schemas/                    # Strict Zod input validation schemas
+    ├── tools/                      # Tool handlers registered via server.registerTool
+    ├── resources/                  # Resource handlers registered via server.registerResource
+    ├── prompts/                    # Agent prompt workflows registered via server.registerPrompt
+    └── server.ts                   # Composition root & dependency injection container
 ```
 
 ---
