@@ -13,8 +13,14 @@
     "server": "bun run src/index.ts --http",
     "auth": "bun run src/auth/oauth.ts",
     "typecheck": "bunx tsc --noEmit",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "biome": "biome check .",
+    "biome:fix": "biome check --write .",
     "test": "bun test",
-    "check": "bun run typecheck && bun run test",
+    "check": "bun run biome && bun run typecheck && bun run test",
     "graphify": "graphify update .",
     "graphify:watch": "graphify watch .",
     "graphify:query": "graphify query",
@@ -26,6 +32,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.6.6",
     "@types/bun": "latest"
   },
   "peerDependencies": {
