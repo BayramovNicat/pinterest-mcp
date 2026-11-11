@@ -4,15 +4,15 @@
  */
 
 export interface PinterestAccount {
-  readonly id: string;
-  readonly username: string;
-  readonly accountType?: "BUSINESS" | "INDIVIDUAL";
-  readonly profileImage?: string;
-  readonly websiteUrl?: string;
-  readonly pinCount?: number;
-  readonly followerCount?: number;
-  readonly followingCount?: number;
-  readonly monthlyViews?: number;
-  readonly about?: string;
-  readonly businessName?: string;
+	readonly id: string;
+	readonly username: string;
+	readonly accountType?: "BUSINESS" | "INDIVIDUAL";
+	readonly profileImage?: string;
+	readonly websiteUrl?: string;
+	readonly pinCount?: number;
+	readonly followerCount?: number;
+	readonly followingCount?: number;
+	readonly monthlyViews?: number;
+	readonly about?: string;
+	readonly businessName?: string;
 }

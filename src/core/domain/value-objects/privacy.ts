@@ -11,5 +11,5 @@ export type BoardPrivacy = (typeof BOARD_PRIVACY_LEVELS)[number];
  * Checks if a string is a valid Pinterest BoardPrivacy level.
  */
 export function isValidBoardPrivacy(value: string): value is BoardPrivacy {
-  return (BOARD_PRIVACY_LEVELS as readonly string[]).includes(value);
+	return (BOARD_PRIVACY_LEVELS as readonly string[]).includes(value);
 }

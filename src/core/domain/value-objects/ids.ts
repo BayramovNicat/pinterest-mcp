@@ -15,11 +15,11 @@ export type BoardId = string & { readonly __brand: unique symbol };
  * @throws Error if id is empty
  */
 export function createBoardId(id: string): BoardId {
-  const trimmed = id.trim();
-  if (!trimmed) {
-    throw new Error("BoardId cannot be empty");
-  }
-  return trimmed as BoardId;
+	const trimmed = id.trim();
+	if (!trimmed) {
+		throw new Error("BoardId cannot be empty");
+	}
+	return trimmed as BoardId;
 }
 
 /**
@@ -34,11 +34,11 @@ export type PinId = string & { readonly __brand: unique symbol };
  * @throws Error if id is empty
  */
 export function createPinId(id: string): PinId {
-  const trimmed = id.trim();
-  if (!trimmed) {
-    throw new Error("PinId cannot be empty");
-  }
-  return trimmed as PinId;
+	const trimmed = id.trim();
+	if (!trimmed) {
+		throw new Error("PinId cannot be empty");
+	}
+	return trimmed as PinId;
 }
 
 /**
@@ -53,9 +53,9 @@ export type BoardSectionId = string & { readonly __brand: unique symbol };
  * @throws Error if id is empty
  */
 export function createBoardSectionId(id: string): BoardSectionId {
-  const trimmed = id.trim();
-  if (!trimmed) {
-    throw new Error("BoardSectionId cannot be empty");
-  }
-  return trimmed as BoardSectionId;
+	const trimmed = id.trim();
+	if (!trimmed) {
+		throw new Error("BoardSectionId cannot be empty");
+	}
+	return trimmed as BoardSectionId;
 }

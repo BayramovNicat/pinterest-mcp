@@ -6,16 +6,16 @@
 import { DomainError } from "@errors/domain-error.ts";
 
 export class ResourceNotFoundError extends DomainError {
-  public readonly code = "RESOURCE_NOT_FOUND";
+	public readonly code = "RESOURCE_NOT_FOUND";
 
-  constructor(
-    public readonly resourceType: string,
-    public readonly resourceId: string,
-    message?: string
-  ) {
-    super(message || `${resourceType} with ID "${resourceId}" was not found`, {
-      resourceType,
-      resourceId,
-    });
-  }
+	constructor(
+		public readonly resourceType: string,
+		public readonly resourceId: string,
+		message?: string,
+	) {
+		super(message || `${resourceType} with ID "${resourceId}" was not found`, {
+			resourceType,
+			resourceId,
+		});
+	}
 }

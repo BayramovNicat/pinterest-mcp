@@ -6,17 +6,17 @@
 export type ActionStatus = "SUCCESS" | "ERROR" | "PENDING";
 
 export interface ActionLog {
-  readonly id: number;
-  readonly timestamp: string;
-  readonly action: string;
-  readonly target_id: string | null;
-  readonly details: string | null;
-  readonly status: ActionStatus | string;
+	readonly id: number;
+	readonly timestamp: string;
+	readonly action: string;
+	readonly target_id: string | null;
+	readonly details: string | null;
+	readonly status: ActionStatus | string;
 }
 
 export interface CreateActionLogDto {
-  readonly action: string;
-  readonly targetId?: string | null;
-  readonly details?: unknown;
-  readonly status?: ActionStatus | string;
+	readonly action: string;
+	readonly targetId?: string | null;
+	readonly details?: unknown;
+	readonly status?: ActionStatus | string;
 }

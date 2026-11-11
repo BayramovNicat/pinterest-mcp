@@ -1,41 +1,41 @@
 {
-  "name": "pinterest-mcp",
-  "version": "1.0.0",
-  "description": "Pinterest Model Context Protocol (MCP) server for AI agents built with native Bun tools",
-  "module": "src/index.ts",
-  "bin": {
-    "pinterest-mcp": "./src/index.ts"
-  },
-  "type": "module",
-  "scripts": {
-    "start": "bun run src/index.ts",
-    "dev": "bun --watch src/index.ts",
-    "server": "bun run src/index.ts --http",
-    "auth": "bun run src/auth/oauth.ts",
-    "typecheck": "bunx tsc --noEmit",
-    "lint": "biome lint .",
-    "lint:fix": "biome lint --write .",
-    "format": "biome format --write .",
-    "format:check": "biome format .",
-    "biome": "biome check .",
-    "biome:fix": "biome check --write .",
-    "test": "bun test",
-    "check": "bun run biome && bun run typecheck && bun run test",
-    "graphify": "graphify update .",
-    "graphify:watch": "graphify watch .",
-    "graphify:query": "graphify query",
-    "graphify:affected": "graphify affected",
-    "graphify:hubs": "graphify god-nodes"
-  },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.32.2",
-    "zod": "^4.6.7"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.6.6",
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^7"
-  }
+	"name": "pinterest-mcp",
+	"version": "1.0.0",
+	"description": "Pinterest Model Context Protocol (MCP) server for AI agents built with native Bun tools",
+	"module": "src/index.ts",
+	"bin": {
+		"pinterest-mcp": "./src/index.ts"
+	},
+	"type": "module",
+	"scripts": {
+		"start": "bun run src/index.ts",
+		"dev": "bun --watch src/index.ts",
+		"server": "bun run src/index.ts --http",
+		"auth": "bun run src/auth/oauth.ts",
+		"typecheck": "bunx tsc --noEmit",
+		"lint": "biome lint .",
+		"lint:fix": "biome lint --write .",
+		"format": "biome format --write .",
+		"format:check": "biome format .",
+		"biome": "biome check .",
+		"biome:fix": "biome check --write .",
+		"test": "bun test",
+		"check": "bun run biome && bun run typecheck && bun run test",
+		"graphify": "graphify update .",
+		"graphify:watch": "graphify watch .",
+		"graphify:query": "graphify query",
+		"graphify:affected": "graphify affected",
+		"graphify:hubs": "graphify god-nodes"
+	},
+	"dependencies": {
+		"@modelcontextprotocol/sdk": "^1.32.2",
+		"zod": "^4.6.7"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.6.6",
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^7"
+	}
 }

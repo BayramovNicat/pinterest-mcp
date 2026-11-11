@@ -10,143 +10,165 @@ import { SecretMasker } from "@core/security/secret-masker.ts";
 
 const DEFAULT_PORT = 3000;
 const SCOPES = [
-  "boards:read",
-  "boards:write",
-  "pins:read",
-  "pins:write",
-  "user_accounts:read",
+	"boards:read",
+	"boards:write",
+	"pins:read",
+	"pins:write",
+	"user_accounts:read",
 ].join(",");
 
 interface TokenExchangeResponse {
-  readonly access_token: string;
-  readonly refresh_token?: string;
-  readonly token_type?: string;
-  readonly expires_in?: number;
-  readonly scope?: string;
-  readonly message?: string;
+	readonly access_token: string;
+	readonly refresh_token?: string;
+	readonly token_type?: string;
+	readonly expires_in?: number;
+	readonly scope?: string;
+	readonly message?: string;
 }
 
 async function updateEnvFile(key: string, value: string): Promise<void> {
-  const envPath = ".env";
-  const file = Bun.file(envPath);
-  let content = "";
+	const envPath = ".env";
+	const file = Bun.file(envPath);
+	let content = "";
 
-  if (await file.exists()) {
-    content = await file.text();
-  }
+	if (await file.exists()) {
+		content = await file.text();
+	}
 
-  const regex = new RegExp(`^${key}=.*$`, "m");
-  if (regex.test(content)) {
-    content = content.replace(regex, `${key}=${value}`);
-  } else {
-    content = (content ? content.trimEnd() + "\n" : "") + `${key}=${value}\n`;
-  }
+	const regex = new RegExp(`^${key}=.*$`, "m");
+	if (regex.test(content)) {
+		content = content.replace(regex, `${key}=${value}`);
+	} else {
+		content = `${content ? `${content.trimEnd()}\n` : ""}${key}=${value}\n`;
+	}
 
-  await Bun.write(envPath, content);
+	await Bun.write(envPath, content);
 }
 
 export async function runOAuthFlow(): Promise<void> {
-  const clientId = process.env.PINTEREST_APP_ID || process.env.PINTEREST_CLIENT_ID;
-  const clientSecret = process.env.PINTEREST_APP_SECRET || process.env.PINTEREST_CLIENT_SECRET;
-  const port = parseInt(process.env.PINTEREST_REDIRECT_PORT || `${DEFAULT_PORT}`, 10);
-  const redirectUri = `http://localhost:${port}/callback`;
+	const clientId =
+		process.env.PINTEREST_APP_ID || process.env.PINTEREST_CLIENT_ID;
+	const clientSecret =
+		process.env.PINTEREST_APP_SECRET || process.env.PINTEREST_CLIENT_SECRET;
+	const port = parseInt(
+		process.env.PINTEREST_REDIRECT_PORT || `${DEFAULT_PORT}`,
+		10,
+	);
+	const redirectUri = `http://localhost:${port}/callback`;
 
-  if (!clientId || !clientSecret) {
-    console.error("\n❌ Error: Missing Pinterest App credentials.");
-    console.error("Please set PINTEREST_APP_ID and PINTEREST_APP_SECRET in your .env file or environment.");
-    console.error("\nHow to get them:");
-    console.error("1. Go to https://developers.pinterest.com/apps/");
-    console.error("2. Create an App and add http://localhost:3000/callback to Redirect URIs");
-    console.error("3. Add App ID and App Secret to your .env file:");
-    console.error("   PINTEREST_APP_ID=your_app_id");
-    console.error("   PINTEREST_APP_SECRET=your_app_secret\n");
-    process.exit(1);
-  }
+	if (!clientId || !clientSecret) {
+		console.error("\n❌ Error: Missing Pinterest App credentials.");
+		console.error(
+			"Please set PINTEREST_APP_ID and PINTEREST_APP_SECRET in your .env file or environment.",
+		);
+		console.error("\nHow to get them:");
+		console.error("1. Go to https://developers.pinterest.com/apps/");
+		console.error(
+			"2. Create an App and add http://localhost:3000/callback to Redirect URIs",
+		);
+		console.error("3. Add App ID and App Secret to your .env file:");
+		console.error("   PINTEREST_APP_ID=your_app_id");
+		console.error("   PINTEREST_APP_SECRET=your_app_secret\n");
+		process.exit(1);
+	}
 
-  SecretMasker.registerSecret(clientSecret);
+	SecretMasker.registerSecret(clientSecret);
 
-  const authUrl = `https://www.pinterest.com/oauth/?client_id=${clientId}&redirect_uri=${encodeURIComponent(
-    redirectUri
-  )}&response_type=code&scope=${encodeURIComponent(SCOPES)}`;
+	const authUrl = `https://www.pinterest.com/oauth/?client_id=${clientId}&redirect_uri=${encodeURIComponent(
+		redirectUri,
+	)}&response_type=code&scope=${encodeURIComponent(SCOPES)}`;
 
-  console.log("\n=======================================================");
-  console.log("       Pinterest OAuth 2.0 Setup (Bun Native)         ");
-  console.log("=======================================================\n");
-  console.log("1. Open the following link in your browser to authorize:");
-  console.log(`\n   \x1b[36${authUrl}\x1b[0m\n`);
-  console.log(`2. Waiting for callback at ${redirectUri} ...`);
+	console.log("\n=======================================================");
+	console.log("       Pinterest OAuth 2.0 Setup (Bun Native)         ");
+	console.log("=======================================================\n");
+	console.log("1. Open the following link in your browser to authorize:");
+	console.log(`\n   \x1b[36${authUrl}\x1b[0m\n`);
+	console.log(`2. Waiting for callback at ${redirectUri} ...`);
 
-  let resolveCompletion: () => void = () => {};
-  const completionPromise = new Promise<void>((resolve) => {
-    resolveCompletion = resolve;
-  });
+	let resolveCompletion: () => void = () => {};
+	const completionPromise = new Promise<void>((resolve) => {
+		resolveCompletion = resolve;
+	});
 
-  const server = Bun.serve({
-    port,
-    async fetch(req: Request): Promise<Response> {
-      const url = new URL(req.url);
+	const server = Bun.serve({
+		port,
+		async fetch(req: Request): Promise<Response> {
+			const url = new URL(req.url);
 
-      if (url.pathname === "/callback") {
-        const code = url.searchParams.get("code");
-        const error = url.searchParams.get("error");
+			if (url.pathname === "/callback") {
+				const code = url.searchParams.get("code");
+				const error = url.searchParams.get("error");
 
-        if (error) {
-          return new Response(`<h1>Authentication Failed</h1><p>${SecretMasker.mask(error)}</p>`, {
-            headers: { "Content-Type": "text/html" },
-            status: 400,
-          });
-        }
+				if (error) {
+					return new Response(
+						`<h1>Authentication Failed</h1><p>${SecretMasker.mask(error)}</p>`,
+						{
+							headers: { "Content-Type": "text/html" },
+							status: 400,
+						},
+					);
+				}
 
-        if (!code) {
-          return new Response("<h1>Missing Authorization Code</h1>", {
-            headers: { "Content-Type": "text/html" },
-            status: 400,
-          });
-        }
+				if (!code) {
+					return new Response("<h1>Missing Authorization Code</h1>", {
+						headers: { "Content-Type": "text/html" },
+						status: 400,
+					});
+				}
 
-        try {
-          console.log("\nReceived authorization code. Exchanging for access token...");
-          const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+				try {
+					console.log(
+						"\nReceived authorization code. Exchanging for access token...",
+					);
+					const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString(
+						"base64",
+					);
 
-          const tokenRes = await fetch("https://api.pinterest.com/v5/oauth/token", {
-            method: "POST",
-            headers: {
-              Authorization: `Basic ${basicAuth}`,
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: new URLSearchParams({
-              grant_type: "authorization_code",
-              code,
-              redirect_uri: redirectUri,
-            }),
-          });
+					const tokenRes = await fetch(
+						"https://api.pinterest.com/v5/oauth/token",
+						{
+							method: "POST",
+							headers: {
+								Authorization: `Basic ${basicAuth}`,
+								"Content-Type": "application/x-www-form-urlencoded",
+							},
+							body: new URLSearchParams({
+								grant_type: "authorization_code",
+								code,
+								redirect_uri: redirectUri,
+							}),
+						},
+					);
 
-          const tokenData = (await tokenRes.json()) as TokenExchangeResponse;
+					const tokenData = (await tokenRes.json()) as TokenExchangeResponse;
 
-          if (!tokenRes.ok || !tokenData.access_token) {
-            const masked = SecretMasker.maskObject(tokenData);
-            console.error("Token exchange failed:", masked);
-            return new Response(`<h1>Token Exchange Failed</h1><pre>${JSON.stringify(masked, null, 2)}</pre>`, {
-              headers: { "Content-Type": "text/html" },
-              status: 400,
-            });
-          }
+					if (!tokenRes.ok || !tokenData.access_token) {
+						const masked = SecretMasker.maskObject(tokenData);
+						console.error("Token exchange failed:", masked);
+						return new Response(
+							`<h1>Token Exchange Failed</h1><pre>${JSON.stringify(masked, null, 2)}</pre>`,
+							{
+								headers: { "Content-Type": "text/html" },
+								status: 400,
+							},
+						);
+					}
 
-          const accessToken = tokenData.access_token;
-          const refreshToken = tokenData.refresh_token;
+					const accessToken = tokenData.access_token;
+					const refreshToken = tokenData.refresh_token;
 
-          await updateEnvFile("PINTEREST_ACCESS_TOKEN", accessToken);
-          if (refreshToken) {
-            await updateEnvFile("PINTEREST_REFRESH_TOKEN", refreshToken);
-          }
+					await updateEnvFile("PINTEREST_ACCESS_TOKEN", accessToken);
+					if (refreshToken) {
+						await updateEnvFile("PINTEREST_REFRESH_TOKEN", refreshToken);
+					}
 
-          console.log("\n✅ Success! PINTEREST_ACCESS_TOKEN saved to .env");
-          setTimeout(() => {
-            resolveCompletion();
-          }, 1000);
+					console.log("\n✅ Success! PINTEREST_ACCESS_TOKEN saved to .env");
+					setTimeout(() => {
+						resolveCompletion();
+					}, 1000);
 
-          return new Response(
-            `<!DOCTYPE html>
+					return new Response(
+						`<!DOCTYPE html>
             <html>
               <head><title>Pinterest MCP - Authorized</title></head>
               <body style="font-family: sans-serif; text-align: center; padding: 50px;">
@@ -155,31 +177,33 @@ export async function runOAuthFlow(): Promise<void> {
                 <p>You can close this tab and return to your terminal.</p>
               </body>
             </html>`,
-            {
-              headers: { "Content-Type": "text/html" },
-            }
-          );
-        } catch (err: unknown) {
-          const message = SecretMasker.mask(err instanceof Error ? err.message : String(err));
-          console.error("Error exchanging token:", message);
-          return new Response(`<h1>Internal Error</h1><p>${message}</p>`, {
-            headers: { "Content-Type": "text/html" },
-            status: 500,
-          });
-        }
-      }
+						{
+							headers: { "Content-Type": "text/html" },
+						},
+					);
+				} catch (err: unknown) {
+					const message = SecretMasker.mask(
+						err instanceof Error ? err.message : String(err),
+					);
+					console.error("Error exchanging token:", message);
+					return new Response(`<h1>Internal Error</h1><p>${message}</p>`, {
+						headers: { "Content-Type": "text/html" },
+						status: 500,
+					});
+				}
+			}
 
-      return new Response("Not Found", { status: 404 });
-    },
-  });
+			return new Response("Not Found", { status: 404 });
+		},
+	});
 
-  await completionPromise;
-  server.stop(true);
+	await completionPromise;
+	server.stop(true);
 }
 
 if (import.meta.main) {
-  runOAuthFlow().catch((err) => {
-    console.error("OAuth error:", err);
-    process.exit(1);
-  });
+	runOAuthFlow().catch((err) => {
+		console.error("OAuth error:", err);
+		process.exit(1);
+	});
 }

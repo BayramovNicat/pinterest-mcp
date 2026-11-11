@@ -59,6 +59,7 @@ src/
 ## 🛠️ MCP Tools
 
 ### Pins & Publishing
+
 - `pinterest_create_pin`: Publish a pin from a web URL, local file, or base64 payload.
 - `pinterest_list_pins`: List recent pins with pagination and filter criteria.
 - `pinterest_get_pin`: Retrieve detailed pin metadata and visual specs.
@@ -67,6 +68,7 @@ src/
 - `pinterest_save_pin`: Save (re-pin) an existing pin to another board.
 
 ### Boards & Sections
+
 - `pinterest_list_boards`: List boards with privacy filtering (`PUBLIC`, `PROTECTED`, `SECRET`).
 - `pinterest_get_board`: Retrieve detailed information for a specific board ID.
 - `pinterest_create_board`: Create a new board with custom privacy settings.
@@ -79,14 +81,17 @@ src/
 - `pinterest_audit_boards`: Automated diagnostic audit analyzing empty boards, large boards (> 50 pins), and structural taxonomy recommendations.
 
 ### Account & Rate Limits
+
 - `pinterest_get_account`: Get authenticated user profile (username, followers, pins, website, etc.).
 - `pinterest_get_rate_limit_status`: Inspect remaining calls, limit quota, and reset timestamps.
 
 ### Analytics
+
 - `pinterest_get_pin_analytics`: Performance metrics (impressions, saves, clicks) over a date range (`YYYY-MM-DD`).
 - `pinterest_get_account_analytics`: High-level account metrics over a date range.
 
 ### SEO & Strategy
+
 - `pinterest_optimize_pin_metadata`: Generates high-converting title variants, keyword-rich SEO descriptions, alt text, and hashtag sets adhering to Pinterest visual search best practices.
 
 ---
@@ -94,11 +99,13 @@ src/
 ## 📚 MCP Resources & Prompts
 
 ### Resources
+
 - `pinterest://account`: Live summary of authenticated user profile.
 - `pinterest://boards`: Cached list of user boards.
 - `pinterest://activity/recent`: Recent pin and board operations logged in local SQLite.
 
 ### Prompts
+
 - `create-pin-campaign`: Step-by-step workflow to research, optimize, and publish high-converting pins.
 - `audit-and-organize-boards`: Complete account audit diagnosing board architecture and suggesting missing niche categories.
 - `repurpose-content`: Guides the agent to turn a blog post, article, or product link into multiple Pinterest pin concepts.
@@ -108,29 +115,36 @@ src/
 ## 🚀 Quick Start
 
 ### 1. Install Dependencies
+
 ```bash
 bun install
 ```
 
 ### 2. Configure Credentials
+
 Copy `.env.example` to `.env`:
+
 ```bash
 cp .env.example .env
 ```
 
 #### Option A: Built-in Bun OAuth 2.0 Flow
+
 Add your Pinterest App credentials in `.env`:
+
 ```env
 PINTEREST_APP_ID=your_app_id
 PINTEREST_APP_SECRET=your_app_secret
 ```
 Run the local OAuth helper:
+
 ```bash
 bun run auth
 ```
 This starts a native `Bun.serve()` listener on port 3000, generates the authorization URL, exchanges the callback code, and securely updates `PINTEREST_ACCESS_TOKEN` in `.env`.
 
 #### Option B: Direct Token
+
 ```env
 PINTEREST_ACCESS_TOKEN=pina_...
 ```
@@ -140,22 +154,25 @@ PINTEREST_ACCESS_TOKEN=pina_...
 ## 🤖 Connecting to MCP Clients
 
 ### Claude Desktop
+
 Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
 ```json
 {
-  "mcpServers": {
-    "pinterest": {
-      "command": "bun",
-      "args": ["run", "/absolute/path/to/pinterestmcp/src/index.ts"],
-      "env": {
-        "PINTEREST_ACCESS_TOKEN": "your_pinterest_access_token"
-      }
-    }
-  }
+	"mcpServers": {
+		"pinterest": {
+			"command": "bun",
+			"args": ["run", "/absolute/path/to/pinterestmcp/src/index.ts"],
+			"env": {
+				"PINTEREST_ACCESS_TOKEN": "your_pinterest_access_token"
+			}
+		}
+	}
 }
 ```
 
 ### Antigravity / Cursor / Windsurf / Zed
+
 - **Command:** `bun`
 - **Arguments:** `["run", "<path-to-workspace>/src/index.ts"]`
 - **Environment:** `PINTEREST_ACCESS_TOKEN=<token>`
@@ -167,6 +184,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 ```bash
 bun run server --port 8080
 ```
+
 - **SSE Stream:** `http://localhost:8080/sse`
 - **Messages:** `http://localhost:8080/messages`
 - **Health Check:** `http://localhost:8080/health`

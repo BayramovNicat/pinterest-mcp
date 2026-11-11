@@ -7,14 +7,14 @@
 import { PinterestApiError } from "@errors/api-error.ts";
 
 export class RateLimitExceededError extends PinterestApiError {
-  public override readonly code = "RATE_LIMIT_EXCEEDED";
+	public override readonly code = "RATE_LIMIT_EXCEEDED";
 
-  constructor(
-    message: string = "Pinterest API rate limit exceeded",
-    public readonly retryAfterSeconds: number = 60,
-    context?: Record<string, unknown>
-  ) {
-    super(message, 429, 0, { ...context, retryAfterSeconds });
-    this.name = "RateLimitExceededError";
-  }
+	constructor(
+		message: string = "Pinterest API rate limit exceeded",
+		public readonly retryAfterSeconds: number = 60,
+		context?: Record<string, unknown>,
+	) {
+		super(message, 429, 0, { ...context, retryAfterSeconds });
+		this.name = "RateLimitExceededError";
+	}
 }

@@ -6,12 +6,15 @@
 import { DomainError } from "@errors/domain-error.ts";
 
 export class ValidationError extends DomainError {
-  public readonly code = "VALIDATION_ERROR";
+	public readonly code = "VALIDATION_ERROR";
 
-  constructor(
-    message: string,
-    public readonly validationErrors?: ReadonlyArray<{ path: string; message: string }>
-  ) {
-    super(message, { validationErrors });
-  }
+	constructor(
+		message: string,
+		public readonly validationErrors?: ReadonlyArray<{
+			path: string;
+			message: string;
+		}>,
+	) {
+		super(message, { validationErrors });
+	}
 }

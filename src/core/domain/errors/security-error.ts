@@ -6,12 +6,12 @@
 import { DomainError } from "@errors/domain-error.ts";
 
 export class PathTraversalSecurityError extends DomainError {
-  public readonly code = "PATH_TRAVERSAL_DETECTED";
+	public readonly code = "PATH_TRAVERSAL_DETECTED";
 
-  constructor(
-    public readonly attemptedPath: string,
-    message: string = "Access denied: local file path traverses outside allowed directory boundaries"
-  ) {
-    super(message, { attemptedPath });
-  }
+	constructor(
+		public readonly attemptedPath: string,
+		message: string = "Access denied: local file path traverses outside allowed directory boundaries",
+	) {
+		super(message, { attemptedPath });
+	}
 }
