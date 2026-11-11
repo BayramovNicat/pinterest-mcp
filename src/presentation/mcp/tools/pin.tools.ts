@@ -11,6 +11,7 @@ import {
 	GetPinInputSchema,
 	ListPinsInputSchema,
 	SavePinInputSchema,
+	SearchPinsInputSchema,
 	UpdatePinInputSchema,
 } from "@schemas/pin.schemas.ts";
 import type { PinPublishingService } from "@services/pin-publishing.service.ts";
@@ -264,6 +265,154 @@ export function registerPinTools(
 				);
 				return {
 					content: [{ type: "text", text: `Error saving pin: ${message}` }],
+					isError: true,
+				};
+			}
+		},
+	);
+
+	// 7. Search Pins by keyword (Thematic Search)
+	server.registerTool(
+		"pinterest_search_pins",
+		{
+			description:
+				"Search thematic pins and images across Pinterest by query keywords (e.g. 'cyberpunk car', 'scandinavian interior', 'coffee aesthetic'). Returns image URLs, dimensions, and Pinterest pin links.",
+			inputSchema: SearchPinsInputSchema,
+		},
+		async ({ query, limit = 10 }) => {
+			try {
+				const apiKey = process.env.RAPIDAPI_KEY;
+				if (!apiKey) {
+					return {
+						content: [
+							{
+								type: "text",
+								text: "Error: RAPIDAPI_KEY is not configured in .env or environment variables. Please provide a RAPIDAPI_KEY to use the thematic search tool.",
+							},
+						],
+						isError: true,
+					};
+				}
+				SecretMasker.registerSecret(apiKey);
+
+				const url = `https://unofficial-pinterest-api.p.rapidapi.com/pinterest/pins/relevance?keyword=${encodeURIComponent(
+					query,
+				)}&num=${encodeURIComponent(Math.min(limit, 50))}`;
+
+				const response = await fetch(url, {
+					headers: {
+						"x-rapidapi-host": "unofficial-pinterest-api.p.rapidapi.com",
+						"x-rapidapi-key": apiKey,
+					},
+				});
+
+				if (!response.ok) {
+					const errorText = await response.text();
+					throw new Error(
+						`Search API responded with status ${response.status}: ${errorText}`,
+					);
+				}
+
+				interface RapidApiPinImage {
+					url?: string;
+					width?: number;
+					height?: number;
+				}
+
+				interface RapidApiPin {
+					id?: string;
+					node_id?: string;
+					title?: string;
+					grid_title?: string;
+					description?: string;
+					domain?: string;
+					board?: {
+						name?: string;
+					};
+					images?: {
+						orig?: RapidApiPinImage;
+						"736x"?: RapidApiPinImage;
+						"474x"?: RapidApiPinImage;
+						"236x"?: RapidApiPinImage;
+						"170x"?: RapidApiPinImage;
+						[key: string]: RapidApiPinImage | undefined;
+					};
+					[key: string]: unknown;
+				}
+
+				interface RapidApiResponse {
+					status?: string;
+					data?: Array<{
+						objects?: RapidApiPin[];
+						[key: string]: unknown;
+					}>;
+				}
+
+				const rawData = (await response.json()) as RapidApiResponse;
+
+				const items: RapidApiPin[] = [];
+				if (Array.isArray(rawData?.data)) {
+					for (const entry of rawData.data) {
+						if (Array.isArray(entry?.objects)) {
+							for (const obj of entry.objects) {
+								items.push(obj);
+							}
+						} else if (entry && typeof entry === "object") {
+							items.push(entry as RapidApiPin);
+						}
+					}
+				}
+
+				const formatted = items.slice(0, limit).map((pin: RapidApiPin) => {
+					const images = pin.images || {};
+					const bestImageUrl =
+						images.orig?.url ||
+						images["736x"]?.url ||
+						images["474x"]?.url ||
+						images["236x"]?.url ||
+						images["170x"]?.url ||
+						"";
+
+					return {
+						id: pin.node_id || pin.id,
+						title: pin.title || pin.grid_title || "Untitled Pin",
+						description: pin.description || "",
+						link: pin.domain ? `https://${pin.domain}` : undefined,
+						pin_url: pin.node_id
+							? `https://www.pinterest.com/pin/${pin.node_id}`
+							: undefined,
+						image_url: bestImageUrl,
+						image_thumbnails: {
+							small: images["170x"]?.url || images["236x"]?.url,
+							medium: images["474x"]?.url || images["736x"]?.url,
+							original: images.orig?.url,
+						},
+						board: pin.board?.name,
+					};
+				});
+
+				return {
+					content: [
+						{
+							type: "text",
+							text: JSON.stringify(
+								{
+									query,
+									count: formatted.length,
+									pins: formatted,
+								},
+								null,
+								2,
+							),
+						},
+					],
+				};
+			} catch (error: unknown) {
+				const message = SecretMasker.mask(
+					error instanceof Error ? error.message : String(error),
+				);
+				return {
+					content: [{ type: "text", text: `Error searching pins: ${message}` }],
 					isError: true,
 				};
 			}

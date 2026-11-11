@@ -26,6 +26,7 @@ export const EnvSchema = z.object({
 	MCP_TRANSPORT: z.enum(["stdio", "sse", "http"]).optional().default("stdio"),
 	DATABASE_PATH: z.string().optional().default("pinterest.db"),
 	ALLOWED_MEDIA_DIRS: z.string().optional(),
+	RAPIDAPI_KEY: z.string().optional(),
 });
 
 export type EnvConfig = z.infer<typeof EnvSchema>;

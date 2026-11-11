@@ -99,3 +99,20 @@ export const SavePinInputSchema = {
 		.optional()
 		.describe("Optional destination board section ID"),
 };
+
+export const SearchPinsInputSchema = {
+	query: z
+		.string()
+		.min(1)
+		.describe(
+			"Keyword or theme to search for on Pinterest (e.g. 'cyberpunk car', 'scandinavian interior', 'coffee aesthetic')",
+		),
+	limit: z
+		.number()
+		.int()
+		.min(1)
+		.max(50)
+		.optional()
+		.default(10)
+		.describe("Number of pins to return (1-50, default 10)"),
+};
