@@ -1,0 +1,27 @@
+{
+  "name": "pinterest-mcp",
+  "version": "1.0.0",
+  "description": "Pinterest Model Context Protocol (MCP) server for AI agents built with native Bun tools",
+  "module": "index.ts",
+  "bin": {
+    "pinterest-mcp": "./src/index.ts"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": "bun --watch src/index.ts",
+    "server": "bun run src/index.ts --http",
+    "auth": "bun run src/auth/oauth.ts",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^7"
+  }
+}
