@@ -3,8 +3,8 @@
  * @module application/services/board-management.service
  */
 
-import type { IPinterestClient } from "../../core/domain/interfaces/pinterest-client.interface.ts";
-import type { IActionLogRepository } from "../../core/domain/interfaces/action-log-repository.interface.ts";
+import type { IPinterestClient } from "../../core/interfaces/pinterest-client.interface.ts";
+import type { IActionLogRepository } from "../../core/interfaces/action-log-repository.interface.ts";
 import type { PinterestBoard, PinterestBoardSection } from "../../core/domain/entities/board.ts";
 import type { PinterestPin, PaginatedResult } from "../../core/domain/entities/pin.ts";
 import type { BoardPrivacy } from "../../core/domain/value-objects/privacy.ts";

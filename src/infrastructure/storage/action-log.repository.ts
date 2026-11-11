@@ -3,7 +3,7 @@
  * @module infrastructure/storage/action-log.repository
  */
 
-import type { IActionLogRepository } from "../../core/domain/interfaces/action-log-repository.interface.ts";
+import type { IActionLogRepository } from "../../core/interfaces/action-log-repository.interface.ts";
 import type { ActionLog, CreateActionLogDto } from "../../core/domain/entities/action-log.ts";
 import type { DatabaseConnection } from "./database.ts";
 import { SecretMasker } from "../security/secret-masker.ts";

@@ -1,6 +1,6 @@
 /**
  * Port interface for persistent local caching.
- * @module core/domain/interfaces/cache-repository.interface
+ * @module core/interfaces/cache-repository.interface
  */
 
 export interface ICacheRepository {

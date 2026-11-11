@@ -13,9 +13,9 @@ import { PinPublishingService } from "../../application/services/pin-publishing.
 import { BoardManagementService } from "../../application/services/board-management.service.ts";
 import { AccountService } from "../../application/services/account.service.ts";
 import { SeoOptimizerService } from "../../application/services/seo-optimizer.service.ts";
-import type { IPinterestClient } from "../../core/domain/interfaces/pinterest-client.interface.ts";
-import type { IActionLogRepository } from "../../core/domain/interfaces/action-log-repository.interface.ts";
-import type { ICacheRepository } from "../../core/domain/interfaces/cache-repository.interface.ts";
+import type { IPinterestClient } from "../../core/interfaces/pinterest-client.interface.ts";
+import type { IActionLogRepository } from "../../core/interfaces/action-log-repository.interface.ts";
+import type { ICacheRepository } from "../../core/interfaces/cache-repository.interface.ts";
 
 import { registerPinTools } from "./tools/pin.tools.ts";
 import { registerBoardTools } from "./tools/board.tools.ts";

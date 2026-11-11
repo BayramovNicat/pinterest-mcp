@@ -1,14 +1,14 @@
 /**
  * Port interface for the Pinterest REST API v5 client.
- * @module core/domain/interfaces/pinterest-client.interface
+ * @module core/interfaces/pinterest-client.interface
  */
 
-import type { PinterestAccount } from "../entities/account.ts";
-import type { PinterestBoard, PinterestBoardSection } from "../entities/board.ts";
-import type { PinterestPin, PaginatedResult } from "../entities/pin.ts";
-import type { RateLimitStatus } from "../entities/analytics.ts";
-import type { BoardPrivacy } from "../value-objects/privacy.ts";
-import type { PinterestMediaSource } from "../value-objects/media-source.ts";
+import type { PinterestAccount } from "../domain/entities/account.ts";
+import type { PinterestBoard, PinterestBoardSection } from "../domain/entities/board.ts";
+import type { PinterestPin, PaginatedResult } from "../domain/entities/pin.ts";
+import type { RateLimitStatus } from "../domain/entities/analytics.ts";
+import type { BoardPrivacy } from "../domain/value-objects/privacy.ts";
+import type { PinterestMediaSource } from "../domain/value-objects/media-source.ts";
 
 export interface ListBoardsParams {
   readonly bookmark?: string;

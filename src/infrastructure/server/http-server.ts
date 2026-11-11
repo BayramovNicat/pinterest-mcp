@@ -6,7 +6,13 @@
 
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { IncomingMessage, ServerResponse } from "node:http";
+import {
+  IncomingMessage,
+  ServerResponse,
+  type OutgoingHttpHeader,
+  type OutgoingHttpHeaders,
+} from "node:http";
+import { Socket } from "node:net";
 import type { DatabaseConnection } from "../storage/database.ts";
 import type { RateLimitStatus } from "../../core/domain/entities/analytics.ts";
 
@@ -20,6 +26,103 @@ export interface HttpServerOptions {
 export interface StartedHttpServer {
   readonly port: number;
   readonly stop: () => Promise<void>;
+}
+
+/**
+ * Adapter bridging Bun's Web Standard ReadableStream with Node's ServerResponse
+ * required by @modelcontextprotocol/sdk SSEServerTransport.
+ */
+class BunSseServerResponse extends ServerResponse {
+  private readonly closeListeners: Array<() => void> = [];
+
+  constructor(
+    private readonly streamController: ReadableStreamDefaultController,
+    private readonly responseHeaders: Headers,
+    private readonly activeStreams: Set<ReadableStreamDefaultController>
+  ) {
+    super(new IncomingMessage(new Socket()));
+  }
+
+  public override writeHead(
+    _statusCode: number,
+    statusMessage?: string | OutgoingHttpHeaders | OutgoingHttpHeader[],
+    headers?: OutgoingHttpHeaders | OutgoingHttpHeader[]
+  ): this {
+    const hdrs = typeof statusMessage === "object" && statusMessage !== null ? statusMessage : headers;
+    if (hdrs && !Array.isArray(hdrs)) {
+      for (const [key, value] of Object.entries(hdrs)) {
+        if (value !== undefined) {
+          this.responseHeaders.set(key, String(value));
+        }
+      }
+    }
+    return this;
+  }
+
+  public override write(chunk: unknown): boolean {
+    try {
+      const text =
+        typeof chunk === "string"
+          ? chunk
+          : Buffer.from(chunk as Uint8Array).toString("utf-8");
+      this.streamController.enqueue(new TextEncoder().encode(text));
+    } catch {
+      // Stream already closed or cancelled
+    }
+    return true;
+  }
+
+  public override end(): this {
+    this.activeStreams.delete(this.streamController);
+    for (const listener of this.closeListeners) {
+      listener();
+    }
+    try {
+      this.streamController.close();
+    } catch {
+      // Ignore if already closed
+    }
+    return this;
+  }
+
+  public override on(event: string, listener: (...args: unknown[]) => void): this {
+    if (event === "close") {
+      this.closeListeners.push(listener as () => void);
+    }
+    return this;
+  }
+}
+
+/**
+ * Adapter bridging a parsed Bun Request into an IncomingMessage for MCP handlePostMessage.
+ */
+class BunPostIncomingMessage extends IncomingMessage {
+  public body: unknown;
+
+  constructor(req: Request, body: unknown) {
+    super(new Socket());
+    this.url = req.url;
+    this.method = req.method;
+    this.headers = Object.fromEntries(req.headers.entries());
+    this.body = body;
+  }
+}
+
+/**
+ * No-op ServerResponse used when acknowledging SSE POST messages via Bun Response.
+ */
+class BunNoopServerResponse extends ServerResponse {
+  constructor(req: IncomingMessage) {
+    super(req);
+  }
+
+  public override writeHead(): this {
+    return this;
+  }
+
+  public override end(): this {
+    return this;
+  }
 }
 
 export function startHttpServer(options: HttpServerOptions): StartedHttpServer {
@@ -52,50 +155,8 @@ export function startHttpServer(options: HttpServerOptions): StartedHttpServer {
           "X-Accel-Buffering": "no",
         });
 
-        const closeListeners: Array<() => void> = [];
-
-        const mockResponse: Pick<ServerResponse, "writeHead" | "write" | "end" | "on"> = {
-          writeHead(_status: number, responseHeaders?: unknown) {
-            if (responseHeaders && typeof responseHeaders === "object") {
-              for (const [key, value] of Object.entries(responseHeaders as Record<string, string>)) {
-                headers.set(key, String(value));
-              }
-            }
-            return mockResponse as unknown as ServerResponse;
-          },
-          write(chunk: unknown) {
-            try {
-              const text = typeof chunk === "string" ? chunk : Buffer.from(chunk as Uint8Array).toString("utf-8");
-              streamController.enqueue(new TextEncoder().encode(text));
-            } catch {
-              // Stream already closed or cancelled
-            }
-            return true;
-          },
-          end() {
-            activeStreams.delete(streamController);
-            for (const listener of closeListeners) {
-              listener();
-            }
-            try {
-              streamController.close();
-            } catch {
-              // Ignore if already closed
-            }
-            return mockResponse as unknown as ServerResponse;
-          },
-          on(event: string, listener: (...args: unknown[]) => void) {
-            if (event === "close") {
-              closeListeners.push(listener as () => void);
-            }
-            return mockResponse as unknown as ServerResponse;
-          },
-        };
-
-        const transport = new SSEServerTransport(
-          "/messages",
-          mockResponse as unknown as ServerResponse
-        );
+        const bridgeResponse = new BunSseServerResponse(streamController, headers, activeStreams);
+        const transport = new SSEServerTransport("/messages", bridgeResponse);
 
         sseTransports.set(transport.sessionId, transport);
 
@@ -127,20 +188,10 @@ export function startHttpServer(options: HttpServerOptions): StartedHttpServer {
         }
 
         const body: unknown = await req.json();
+        const incomingMsg = new BunPostIncomingMessage(req, body);
+        const noopResponse = new BunNoopServerResponse(incomingMsg);
 
-        const mockIncoming = {
-          body,
-          headers: Object.fromEntries(req.headers.entries()),
-          url: req.url,
-          method: req.method,
-        } as unknown as IncomingMessage;
-
-        const mockServerResponse = {
-          writeHead: () => mockServerResponse as unknown as ServerResponse,
-          end: () => mockServerResponse as unknown as ServerResponse,
-        } as unknown as ServerResponse;
-
-        await transport.handlePostMessage(mockIncoming, mockServerResponse, body);
+        await transport.handlePostMessage(incomingMsg, noopResponse, body);
 
         return new Response(JSON.stringify({ status: "ok" }), {
           status: 200,

@@ -3,6 +3,19 @@ import { createPinterestMcpServer } from "../src/presentation/mcp/server.ts";
 import { DatabaseConnection } from "../src/infrastructure/storage/database.ts";
 import { PinterestClient } from "../src/infrastructure/pinterest/pinterest-client.ts";
 
+interface RegisteredToolEntry {
+  handler: (args: Record<string, unknown>) => Promise<{
+    content: Array<{ type: string; text: string }>;
+    isError?: boolean;
+  }>;
+}
+
+interface InternalMcpServerRegistry {
+  _registeredTools: Record<string, RegisteredToolEntry>;
+  _registeredResources: Record<string, unknown>;
+  _registeredPrompts: Record<string, unknown>;
+}
+
 describe("Presentation MCP Server Integration", () => {
   test("registers all tools, resources, and prompts with McpServer", () => {
     const db = new DatabaseConnection({ dbPath: ":memory:" });
@@ -15,7 +28,8 @@ describe("Presentation MCP Server Integration", () => {
       version: "2.0.0",
     });
 
-    const registeredTools = (container.server as any)._registeredTools;
+    const registry = container.server as unknown as InternalMcpServerRegistry;
+    const registeredTools = registry._registeredTools;
     expect(registeredTools).toBeDefined();
 
     // Verify key tool names
@@ -43,7 +57,7 @@ describe("Presentation MCP Server Integration", () => {
     expect(toolNames).toContain("pinterest_optimize_pin_metadata");
 
     // Verify resources
-    const registeredResources = (container.server as any)._registeredResources;
+    const registeredResources = registry._registeredResources;
     expect(registeredResources).toBeDefined();
     const resourceKeys = Object.keys(registeredResources);
     expect(resourceKeys).toContain("pinterest://account");
@@ -51,7 +65,7 @@ describe("Presentation MCP Server Integration", () => {
     expect(resourceKeys).toContain("pinterest://activity/recent");
 
     // Verify prompts
-    const registeredPrompts = (container.server as any)._registeredPrompts;
+    const registeredPrompts = registry._registeredPrompts;
     expect(registeredPrompts).toBeDefined();
     const promptNames = Object.keys(registeredPrompts);
     expect(promptNames).toContain("create-pin-campaign");
@@ -66,10 +80,11 @@ describe("Presentation MCP Server Integration", () => {
     const client = new PinterestClient({ accessToken: "mock_token" });
 
     const container = createPinterestMcpServer({ client, db });
-    const tool = (container.server as any)._registeredTools["pinterest_optimize_pin_metadata"];
+    const registry = container.server as unknown as InternalMcpServerRegistry;
+    const tool = registry._registeredTools["pinterest_optimize_pin_metadata"];
     expect(tool).toBeDefined();
 
-    const output = await tool.handler({
+    const output = await tool!.handler({
       topic: "Ceramic Pottery",
       target_audience: "Handmade Art Enthusiasts",
       keywords: ["clay mug", "handthrown ceramics"],
@@ -77,8 +92,11 @@ describe("Presentation MCP Server Integration", () => {
     });
 
     expect(output.content).toBeDefined();
-    expect(output.content[0].type).toBe("text");
-    const parsed = JSON.parse(output.content[0].text);
+    expect(output.content[0]?.type).toBe("text");
+    const parsed = JSON.parse(output.content[0]!.text) as {
+      topic: string;
+      recommended_titles: string[];
+    };
     expect(parsed.topic).toBe("Ceramic Pottery");
     expect(parsed.recommended_titles.length).toBe(3);
 

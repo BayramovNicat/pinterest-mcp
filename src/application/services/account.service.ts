@@ -3,15 +3,15 @@
  * @module application/services/account.service
  */
 
-import type { IPinterestClient } from "../../core/domain/interfaces/pinterest-client.interface.ts";
-import type { IActionLogRepository } from "../../core/domain/interfaces/action-log-repository.interface.ts";
-import type { ICacheRepository } from "../../core/domain/interfaces/cache-repository.interface.ts";
-import type { PinterestAccount } from "../../core/domain/entities/account.ts";
-import type { RateLimitStatus } from "../../core/domain/entities/analytics.ts";
 import type {
+  IPinterestClient,
   PinAnalyticsParams,
   AccountAnalyticsParams,
-} from "../../core/domain/interfaces/pinterest-client.interface.ts";
+} from "../../core/interfaces/pinterest-client.interface.ts";
+import type { IActionLogRepository } from "../../core/interfaces/action-log-repository.interface.ts";
+import type { ICacheRepository } from "../../core/interfaces/cache-repository.interface.ts";
+import type { PinterestAccount } from "../../core/domain/entities/account.ts";
+import type { RateLimitStatus } from "../../core/domain/entities/analytics.ts";
 
 export class AccountService {
   constructor(

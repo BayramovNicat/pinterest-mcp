@@ -1,13 +1,10 @@
 import { describe, test, expect } from "bun:test";
 import { ResilientHttpClient } from "../src/infrastructure/pinterest/http-client.ts";
 import { PinterestErrorMapper } from "../src/infrastructure/pinterest/error-mapper.ts";
-import {
-  PinterestAuthenticationError,
-  RateLimitExceededError,
-  ResourceNotFoundError,
-  ValidationError,
-  PinterestApiError,
-} from "../src/core/domain/errors/index.ts";
+import { PinterestAuthenticationError } from "../src/core/domain/errors/authentication-error.ts";
+import { RateLimitExceededError } from "../src/core/domain/errors/rate-limit-error.ts";
+import { ResourceNotFoundError } from "../src/core/domain/errors/not-found-error.ts";
+import { ValidationError } from "../src/core/domain/errors/validation-error.ts";
 
 describe("Infrastructure - ResilientHttpClient & Error Mapper", () => {
   test("PinterestErrorMapper maps 401 and 403 to PinterestAuthenticationError", () => {
@@ -20,7 +17,12 @@ describe("Infrastructure - ResilientHttpClient & Error Mapper", () => {
   });
 
   test("PinterestErrorMapper maps 404 to ResourceNotFoundError", () => {
-    const err404 = PinterestErrorMapper.map(404, { message: "Pin not found" }, null, "https://api.pinterest.com/v5/pins/pin_999");
+    const err404 = PinterestErrorMapper.map(
+      404,
+      { message: "Pin not found" },
+      null,
+      "https://api.pinterest.com/v5/pins/pin_999"
+    );
     expect(err404).toBeInstanceOf(ResourceNotFoundError);
   });
 
@@ -44,19 +46,22 @@ describe("Infrastructure - ResilientHttpClient & Error Mapper", () => {
     let callCount = 0;
     const originalFetch = globalThis.fetch;
 
-    globalThis.fetch = (async () => {
-      callCount++;
-      if (callCount === 1) {
-        return new Response(JSON.stringify({ message: "Internal server error" }), {
-          status: 500,
+    globalThis.fetch = Object.assign(
+      async () => {
+        callCount++;
+        if (callCount === 1) {
+          return new Response(JSON.stringify({ message: "Internal server error" }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+        return new Response(JSON.stringify({ status: "ok" }), {
+          status: 200,
           headers: { "Content-Type": "application/json" },
         });
-      }
-      return new Response(JSON.stringify({ status: "ok" }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    }) as any;
+      },
+      { preconnect: originalFetch.preconnect }
+    );
 
     try {
       const client = new ResilientHttpClient({
@@ -78,17 +83,20 @@ describe("Infrastructure - ResilientHttpClient & Error Mapper", () => {
   test("ResilientHttpClient tracks rate limits accurately", async () => {
     const originalFetch = globalThis.fetch;
 
-    globalThis.fetch = (async () => {
-      return new Response(JSON.stringify({ data: "success" }), {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          "x-ratelimit-limit": "500",
-          "x-ratelimit-remaining": "450",
-          "x-ratelimit-reset": "30",
-        },
-      });
-    }) as any;
+    globalThis.fetch = Object.assign(
+      async () => {
+        return new Response(JSON.stringify({ data: "success" }), {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+            "x-ratelimit-limit": "500",
+            "x-ratelimit-remaining": "450",
+            "x-ratelimit-reset": "30",
+          },
+        });
+      },
+      { preconnect: originalFetch.preconnect }
+    );
 
     try {
       const client = new ResilientHttpClient({

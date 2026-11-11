@@ -3,37 +3,35 @@ import {
   createBoardId,
   createPinId,
   createBoardSectionId,
-  createHexColor,
-  isValidHexColor,
-  isValidBoardPrivacy,
-  BOARD_PRIVACY_LEVELS,
-  PinterestAuthenticationError,
-  RateLimitExceededError,
-  ResourceNotFoundError,
-  ValidationError,
-  PathTraversalSecurityError,
-  PinterestApiError,
-  DomainError,
-} from "../src/core/domain/index.ts";
+} from "../src/core/domain/value-objects/ids.ts";
+import { createHexColor, isValidHexColor } from "../src/core/domain/value-objects/colors.ts";
+import { isValidBoardPrivacy, BOARD_PRIVACY_LEVELS } from "../src/core/domain/value-objects/privacy.ts";
+import { DomainError } from "../src/core/domain/errors/domain-error.ts";
+import { PinterestApiError } from "../src/core/domain/errors/api-error.ts";
+import { PinterestAuthenticationError } from "../src/core/domain/errors/authentication-error.ts";
+import { RateLimitExceededError } from "../src/core/domain/errors/rate-limit-error.ts";
+import { ResourceNotFoundError } from "../src/core/domain/errors/not-found-error.ts";
+import { ValidationError } from "../src/core/domain/errors/validation-error.ts";
+import { PathTraversalSecurityError } from "../src/core/domain/errors/security-error.ts";
 
 describe("Core Domain - Value Objects", () => {
   test("creates branded IDs with validation", () => {
     const boardId = createBoardId("board_abc_123");
-    expect(boardId).toBe("board_abc_123" as any);
+    expect(String(boardId)).toBe("board_abc_123");
     expect(() => createBoardId("  ")).toThrow("BoardId cannot be empty");
 
     const pinId = createPinId("pin_xyz_789");
-    expect(pinId).toBe("pin_xyz_789" as any);
+    expect(String(pinId)).toBe("pin_xyz_789");
     expect(() => createPinId("")).toThrow("PinId cannot be empty");
 
     const sectionId = createBoardSectionId("sec_555");
-    expect(sectionId).toBe("sec_555" as any);
+    expect(String(sectionId)).toBe("sec_555");
     expect(() => createBoardSectionId("")).toThrow("BoardSectionId cannot be empty");
   });
 
   test("validates hex color codes", () => {
     const validColor = createHexColor("#AABBCC");
-    expect(validColor).toBe("#AABBCC" as any);
+    expect(String(validColor)).toBe("#AABBCC");
     expect(isValidHexColor("#123456")).toBe(true);
     expect(isValidHexColor("invalid_color")).toBe(false);
     expect(isValidHexColor("#GGG")).toBe(false);

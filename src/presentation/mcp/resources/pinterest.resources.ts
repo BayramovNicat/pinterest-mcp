@@ -4,8 +4,8 @@
  */
 
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { IPinterestClient } from "../../../core/domain/interfaces/pinterest-client.interface.ts";
-import type { IActionLogRepository } from "../../../core/domain/interfaces/action-log-repository.interface.ts";
+import type { IPinterestClient } from "../../../core/interfaces/pinterest-client.interface.ts";
+import type { IActionLogRepository } from "../../../core/interfaces/action-log-repository.interface.ts";
 import { SecretMasker } from "../../../infrastructure/security/secret-masker.ts";
 
 export function registerResources(

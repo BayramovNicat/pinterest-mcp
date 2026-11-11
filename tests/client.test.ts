@@ -1,5 +1,15 @@
 import { describe, test, expect, beforeAll, afterAll } from "bun:test";
-import { PinterestClient, PinterestApiError } from "../src/client/pinterest.ts";
+import { PinterestClient } from "../src/infrastructure/pinterest/pinterest-client.ts";
+import { PinterestApiError } from "../src/core/domain/errors/api-error.ts";
+
+interface InterceptedPinPayload {
+  board_id?: string;
+  title?: string;
+  media_source?: {
+    source_type?: string;
+    url?: string;
+  };
+}
 
 describe("PinterestClient", () => {
   const testImagePath = "tests/test_temp_pin.png";
@@ -18,7 +28,6 @@ describe("PinterestClient", () => {
   afterAll(async () => {
     const file = Bun.file(testImagePath);
     if (await file.exists()) {
-      // Remove file
       await Bun.$`rm -f ${testImagePath}`;
     }
   });
@@ -52,20 +61,22 @@ describe("PinterestClient", () => {
     const initialStatus = client.getRateLimitStatus();
     expect(initialStatus.limit).toBeNull();
 
-    // Mock fetch
     const originalFetch = globalThis.fetch;
-    globalThis.fetch = (async (url: string | URL | Request) => {
-      const headers = new Headers({
-        "Content-Type": "application/json",
-        "x-ratelimit-limit": "1000",
-        "x-ratelimit-remaining": "980",
-        "x-ratelimit-reset": "60",
-      });
-      return new Response(JSON.stringify({ username: "agent_tester" }), {
-        status: 200,
-        headers,
-      });
-    }) as any;
+    globalThis.fetch = Object.assign(
+      async () => {
+        const headers = new Headers({
+          "Content-Type": "application/json",
+          "x-ratelimit-limit": "1000",
+          "x-ratelimit-remaining": "980",
+          "x-ratelimit-reset": "60",
+        });
+        return new Response(JSON.stringify({ username: "agent_tester" }), {
+          status: 200,
+          headers,
+        });
+      },
+      { preconnect: originalFetch.preconnect }
+    );
 
     try {
       const account = await client.getAccount();
@@ -85,19 +96,22 @@ describe("PinterestClient", () => {
     const client = new PinterestClient({ accessToken: "mock_token" });
 
     const originalFetch = globalThis.fetch;
-    let interceptedBody: any = null;
+    let interceptedBody: InterceptedPinPayload = {};
 
-    globalThis.fetch = (async (url: string | URL | Request, init?: RequestInit) => {
-      interceptedBody = JSON.parse((init?.body as string) || "{}");
-      return new Response(
-        JSON.stringify({
-          id: "pin_test_999",
-          title: interceptedBody.title,
-          board_id: interceptedBody.board_id,
-        }),
-        { status: 201, headers: { "Content-Type": "application/json" } }
-      );
-    }) as any;
+    globalThis.fetch = Object.assign(
+      async (_url: string | URL | Request, init?: RequestInit) => {
+        interceptedBody = JSON.parse((init?.body as string) || "{}") as InterceptedPinPayload;
+        return new Response(
+          JSON.stringify({
+            id: "pin_test_999",
+            title: interceptedBody.title,
+            board_id: interceptedBody.board_id,
+          }),
+          { status: 201, headers: { "Content-Type": "application/json" } }
+        );
+      },
+      { preconnect: originalFetch.preconnect }
+    );
 
     try {
       const created = await client.createPin({
@@ -113,7 +127,7 @@ describe("PinterestClient", () => {
       expect(created.id).toBe("pin_test_999");
       expect(interceptedBody.board_id).toBe("board_123");
       expect(interceptedBody.title).toBe("Test Pin Title");
-      expect(interceptedBody.media_source.url).toBe("https://example.com/test.jpg");
+      expect(interceptedBody.media_source?.url).toBe("https://example.com/test.jpg");
     } finally {
       globalThis.fetch = originalFetch;
     }

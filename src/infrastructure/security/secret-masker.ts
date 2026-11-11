@@ -67,11 +67,11 @@ export class SecretMasker {
     }
 
     if (typeof data === "string") {
-      return SecretMasker.mask(data) as unknown as T;
+      return SecretMasker.mask(data) as T;
     }
 
     if (Array.isArray(data)) {
-      return data.map((item) => SecretMasker.maskObject(item)) as unknown as T;
+      return data.map((item) => SecretMasker.maskObject(item)) as T;
     }
 
     if (typeof data === "object") {

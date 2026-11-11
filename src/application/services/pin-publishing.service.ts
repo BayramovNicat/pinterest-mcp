@@ -3,9 +3,9 @@
  * @module application/services/pin-publishing.service
  */
 
-import type { IPinterestClient } from "../../core/domain/interfaces/pinterest-client.interface.ts";
-import type { IActionLogRepository } from "../../core/domain/interfaces/action-log-repository.interface.ts";
-import type { ICacheRepository } from "../../core/domain/interfaces/cache-repository.interface.ts";
+import type { IPinterestClient } from "../../core/interfaces/pinterest-client.interface.ts";
+import type { IActionLogRepository } from "../../core/interfaces/action-log-repository.interface.ts";
+import type { ICacheRepository } from "../../core/interfaces/cache-repository.interface.ts";
 import type { PinterestPin, PaginatedResult } from "../../core/domain/entities/pin.ts";
 import type { PinterestMediaSource, MediaPayload } from "../../core/domain/value-objects/media-source.ts";
 import { ValidationError } from "../../core/domain/errors/validation-error.ts";

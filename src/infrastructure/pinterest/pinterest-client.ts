@@ -15,7 +15,7 @@ import type {
   UpdatePinParams,
   PinAnalyticsParams,
   AccountAnalyticsParams,
-} from "../../core/domain/interfaces/pinterest-client.interface.ts";
+} from "../../core/interfaces/pinterest-client.interface.ts";
 import type { PinterestAccount } from "../../core/domain/entities/account.ts";
 import type { PinterestBoard, PinterestBoardSection } from "../../core/domain/entities/board.ts";
 import type { PinterestPin, PaginatedResult } from "../../core/domain/entities/pin.ts";

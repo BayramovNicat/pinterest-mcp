@@ -2,7 +2,7 @@
   "name": "pinterest-mcp",
   "version": "1.0.0",
   "description": "Pinterest Model Context Protocol (MCP) server for AI agents built with native Bun tools",
-  "module": "index.ts",
+  "module": "src/index.ts",
   "bin": {
     "pinterest-mcp": "./src/index.ts"
   },

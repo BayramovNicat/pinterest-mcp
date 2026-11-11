@@ -5,7 +5,7 @@
  */
 
 import type { RateLimitStatus } from "../../core/domain/entities/analytics.ts";
-import { PinterestAuthenticationError, RateLimitExceededError } from "../../core/domain/errors/index.ts";
+import { PinterestAuthenticationError } from "../../core/domain/errors/authentication-error.ts";
 import { SecretMasker } from "../security/secret-masker.ts";
 import { PinterestErrorMapper } from "./error-mapper.ts";
 

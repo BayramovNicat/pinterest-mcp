@@ -1,9 +1,9 @@
 /**
  * Port interface for persisting audit/action logs.
- * @module core/domain/interfaces/action-log-repository.interface
+ * @module core/interfaces/action-log-repository.interface
  */
 
-import type { ActionLog, CreateActionLogDto } from "../entities/action-log.ts";
+import type { ActionLog, CreateActionLogDto } from "../domain/entities/action-log.ts";
 
 export interface IActionLogRepository {
   /**

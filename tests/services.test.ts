@@ -6,7 +6,13 @@ import { PinPublishingService } from "../src/application/services/pin-publishing
 import { SeoOptimizerService } from "../src/application/services/seo-optimizer.service.ts";
 import { BoardManagementService } from "../src/application/services/board-management.service.ts";
 import { AccountService } from "../src/application/services/account.service.ts";
-import type { IPinterestClient } from "../src/core/domain/interfaces/pinterest-client.interface.ts";
+import type {
+  IPinterestClient,
+  CreateBoardParams,
+  UpdateBoardParams,
+  CreatePinParams,
+  UpdatePinParams,
+} from "../src/core/interfaces/pinterest-client.interface.ts";
 import type { PinterestAccount } from "../src/core/domain/entities/account.ts";
 import type { PinterestBoard, PinterestBoardSection } from "../src/core/domain/entities/board.ts";
 import type { PinterestPin, PaginatedResult } from "../src/core/domain/entities/pin.ts";
@@ -50,7 +56,7 @@ class MockPinterestClient implements IPinterestClient {
     return board;
   }
 
-  async createBoard(params: { name: string; description?: string; privacy?: any }): Promise<PinterestBoard> {
+  async createBoard(params: CreateBoardParams): Promise<PinterestBoard> {
     const board: PinterestBoard = {
       id: `board_${Date.now()}`,
       name: params.name,
@@ -62,10 +68,9 @@ class MockPinterestClient implements IPinterestClient {
     return board;
   }
 
-  async updateBoard(boardId: string, params: any): Promise<PinterestBoard> {
+  async updateBoard(boardId: string, params: UpdateBoardParams): Promise<PinterestBoard> {
     const board = await this.getBoard(boardId);
-    const updated = { ...board, ...params };
-    return updated;
+    return { ...board, ...params };
   }
 
   async deleteBoard(boardId: string): Promise<{ success: boolean; boardId: string }> {
@@ -99,7 +104,7 @@ class MockPinterestClient implements IPinterestClient {
     return pin;
   }
 
-  async createPin(params: any): Promise<PinterestPin> {
+  async createPin(params: CreatePinParams): Promise<PinterestPin> {
     const pin: PinterestPin = {
       id: `pin_${Date.now()}`,
       boardId: params.boardId,
@@ -111,7 +116,7 @@ class MockPinterestClient implements IPinterestClient {
     return pin;
   }
 
-  async updatePin(pinId: string, params: any): Promise<PinterestPin> {
+  async updatePin(pinId: string, params: UpdatePinParams): Promise<PinterestPin> {
     const pin = await this.getPin(pinId);
     return { ...pin, ...params };
   }
