@@ -1,53 +1,87 @@
-# Pinterest MCP Server (Bun Native) 📌
+# Pinterest MCP Server (Bun Native Enterprise Edition) 📌
 
-A production-grade [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for **Pinterest**, built specifically for AI agents and automated workflows using **Bun native tools**.
+An enterprise-grade, production-ready [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for **Pinterest REST API v5**, built specifically for AI agents and automated marketing workflows adhering to **Clean Architecture** and **Domain-Driven Design (DDD)** principles on the **Bun runtime**.
+
+---
+
+## 🏛️ Architecture Overview
+
+The codebase is organized into clean, decoupled layers following Domain-Driven Design (DDD):
+
+```
+src/
+├── core/domain/                    # Enterprise Business Rules & Entities
+│   ├── entities/                   # Account, Board, Pin, Analytics, ActionLog
+│   ├── value-objects/              # BoardId, PinId, MediaPayload (Discriminated Unions), HexColor, BoardPrivacy
+│   ├── errors/                     # PinterestAuthenticationError, RateLimitExceededError, etc.
+│   └── interfaces/                 # IPinterestClient, IActionLogRepository, ICacheRepository
+│
+├── infrastructure/                 # Low-level frameworks, storage, network & runtime adapters
+│   ├── config/                     # Strict Zod environment validation (Bun.env)
+│   ├── security/                   # PathSanitizer (Path Traversal Guard), SecretMasker (Redaction)
+│   ├── storage/                    # bun:sqlite in WAL mode, prepared statement caching, migrations
+│   ├── pinterest/                  # ResilientHttpClient (exponential backoff, jitter, rate-limit tracking)
+│   └── server/                     # Transport orchestration (STDIO & Bun.serve SSE/Streamable HTTP)
+│
+├── application/                    # Application Business Rules & Use Cases
+│   └── services/                   # PinPublishingService, BoardManagementService, SeoOptimizerService, AccountService
+│
+└── presentation/mcp/               # Model Context Protocol Interface Adapter
+    ├── schemas/                    # Strict Zod schemas with TypeScript inference
+    ├── tools/                      # Tool handlers registered with server.registerTool
+    ├── resources/                  # Resource handlers registered with server.registerResource
+    ├── prompts/                    # Agent prompt workflows registered with server.registerPrompt
+    └── server.ts                   # Composition root & container factory
+```
+
+---
 
 ## ⚡ Highlights
 
-- **100% Native Bun Stack**: Built with `bun:sqlite`, `Bun.serve()`, `Bun.file`, and native `fetch` — fast, lightweight, and zero external runtime dependencies.
-- **Local Image File Pinning**: Point directly to local files (`image_file_path`) created by generative AI or local tools. Native `Bun.file` handles reading, mime detection, and base64 encoding automatically.
-- **Persistent Agent Memory**: Embedded `bun:sqlite` local database automatically tracks audit logs of all agent actions and caches metadata.
-- **Dual Transport Support**:
+- **Pure Bun Runtime (v1.2+)**: Strictly leverages native Bun APIs (`Bun.serve`, `Bun.file`, `bun:sqlite`, native `fetch`, `bun:test`). Zero unnecessary Node.js polyfills or heavy external runtime dependencies.
+- **Latest MCP Specification**: Uses modern, non-deprecated registration methods (`server.registerTool`, `server.registerResource`, `server.registerPrompt`) via `@modelcontextprotocol/sdk`.
+- **Discriminated Union Media Payloads**: Strictly typed unions (`imageUrl`, `localFilePath`, `base64Data`) ensuring end-to-end type safety.
+- **Path Traversal Protection (CWE-22 Guard)**: Strict boundary enforcement on all local image reads via `Bun.file(path).bytes()` to prevent directory traversal attacks.
+- **Rate-Limiting Queuing & Jitter**: Tracks `x-ratelimit-*` headers, handles `429 Too Many Requests` and `Retry-After` headers gracefully with exponential backoff and randomized jitter.
+- **Automated Secret Masking**: Sensitive access tokens, app secrets, and Authorization headers are automatically redacted and never leaked into SQLite audit logs or MCP error messages.
+- **High-Performance SQLite Storage**: Powered by `bun:sqlite` in WAL mode (`PRAGMA journal_mode = WAL`), cached prepared statements, and transactional versioned migrations.
+- **Dual Transport Orchestration**:
   - **STDIO** (Default): Plug directly into Claude Desktop, Cursor, Antigravity, Windsurf, Zed.
-  - **HTTP / SSE**: Standalone server powered by `Bun.serve()` for webhooks and network-accessible agents.
-- **Automated OAuth Helper**: Built-in `bun run auth` command runs a local `Bun.serve()` server to complete OAuth 2.0 authorization with Pinterest in seconds.
-- **Pinterest SEO & Strategy Engine**: Built-in metadata optimization tool (`pinterest_optimize_pin_metadata`) to craft high-converting titles, descriptions with keywords, and alt text.
+  - **HTTP / SSE**: Standalone server powered by `Bun.serve()` with graceful shutdown (`SIGINT`, `SIGTERM`), socket draining (`server.stop(true)`), and detailed `/health` diagnostics.
 
 ---
 
 ## 🛠️ MCP Tools
 
-### Account & Rate Limits
-- `pinterest_get_account`: Get authenticated user profile (username, followers, pins, website, etc.).
-- `pinterest_get_rate_limit_status`: Check remaining Pinterest API calls and rate-limit reset timers.
+### Pins & Publishing
+- `pinterest_create_pin`: Publish a pin from a web URL, local file, or base64 payload.
+- `pinterest_list_pins`: List recent pins with pagination and filter criteria.
+- `pinterest_get_pin`: Retrieve detailed pin metadata and visual specs.
+- `pinterest_update_pin`: Update title, description, link, alt text, or board assignment.
+- `pinterest_delete_pin`: Delete a pin by ID.
+- `pinterest_save_pin`: Save (re-pin) an existing pin to another board.
 
 ### Boards & Sections
-- `pinterest_list_boards`: List boards with pagination (`bookmark`, `page_size`, `privacy`).
+- `pinterest_list_boards`: List boards with privacy filtering (`PUBLIC`, `PROTECTED`, `SECRET`).
 - `pinterest_get_board`: Retrieve detailed information for a specific board ID.
-- `pinterest_create_board`: Create a new board (`PUBLIC`, `PROTECTED`, or `SECRET`).
-- `pinterest_update_board`: Update board name, description, or privacy settings.
+- `pinterest_create_board`: Create a new board with custom privacy settings.
+- `pinterest_update_board`: Update board name, description, or privacy level.
 - `pinterest_delete_board`: Delete a board.
 - `pinterest_list_board_pins`: List pins belonging to a board.
 - `pinterest_list_board_sections`: List sections inside a board.
 - `pinterest_create_board_section`: Create a section within a board.
 - `pinterest_delete_board_section`: Delete a section within a board.
+- `pinterest_audit_boards`: Automated diagnostic audit analyzing empty boards, large boards (> 50 pins), and structural taxonomy recommendations.
 
-### Pins
-- `pinterest_list_pins`: List recent user pins.
-- `pinterest_get_pin`: Retrieve complete details and metrics of a pin by ID.
-- `pinterest_create_pin`: Create a new pin from:
-  - `image_url`: Any public image URL
-  - `image_file_path`: Any local file path on disk (processed with `Bun.file`)
-  - `image_base64`: Direct base64 image data
-- `pinterest_update_pin`: Update title, description, link, alt text, or board assignment.
-- `pinterest_delete_pin`: Delete a pin.
-- `pinterest_save_pin`: Save (re-pin) an existing pin to another board.
+### Account & Rate Limits
+- `pinterest_get_account`: Get authenticated user profile (username, followers, pins, website, etc.).
+- `pinterest_get_rate_limit_status`: Inspect remaining calls, limit quota, and reset timestamps.
 
 ### Analytics
-- `pinterest_get_pin_analytics`: Retrieve impressions, saves, pin clicks, and outbound clicks for a pin over a date range (`YYYY-MM-DD`).
-- `pinterest_get_account_analytics`: Retrieve overall account performance metrics over a date range.
+- `pinterest_get_pin_analytics`: Performance metrics (impressions, saves, clicks) over a date range (`YYYY-MM-DD`).
+- `pinterest_get_account_analytics`: High-level account metrics over a date range.
 
-### Agent Strategy & SEO
+### SEO & Strategy
 - `pinterest_optimize_pin_metadata`: Generates high-converting title variants, keyword-rich SEO descriptions, alt text, and hashtag sets adhering to Pinterest visual search best practices.
 
 ---
@@ -55,13 +89,13 @@ A production-grade [Model Context Protocol (MCP)](https://modelcontextprotocol.i
 ## 📚 MCP Resources & Prompts
 
 ### Resources
-- `pinterest://account`: Live summary of user profile and stats.
-- `pinterest://boards`: Cached list of boards.
-- `pinterest://activity/recent`: Recent pin and board operations logged in SQLite.
+- `pinterest://account`: Live summary of authenticated user profile.
+- `pinterest://boards`: Cached list of user boards.
+- `pinterest://activity/recent`: Recent pin and board operations logged in local SQLite.
 
 ### Prompts
-- `create-pin-campaign`: Guides the agent through board discovery, SEO optimization, and publishing.
-- `audit-and-organize-boards`: Directs the agent to evaluate account structure, identify empty boards, and propose new niche categories.
+- `create-pin-campaign`: Step-by-step workflow to research, optimize, and publish high-converting pins.
+- `audit-and-organize-boards`: Complete account audit diagnosing board architecture and suggesting missing niche categories.
 - `repurpose-content`: Guides the agent to turn a blog post, article, or product link into multiple Pinterest pin concepts.
 
 ---
@@ -74,26 +108,24 @@ bun install
 ```
 
 ### 2. Configure Credentials
-
 Copy `.env.example` to `.env`:
 ```bash
 cp .env.example .env
 ```
 
-#### Option A: Quick OAuth Flow (Recommended)
+#### Option A: Built-in Bun OAuth 2.0 Flow
 Add your Pinterest App credentials in `.env`:
 ```env
 PINTEREST_APP_ID=your_app_id
 PINTEREST_APP_SECRET=your_app_secret
 ```
-Then run the built-in Bun OAuth helper:
+Run the local OAuth helper:
 ```bash
 bun run auth
 ```
-This opens a local `Bun.serve()` listener on port 3000, generates your authorization link, captures the callback, and automatically saves `PINTEREST_ACCESS_TOKEN` to your `.env`.
+This starts a native `Bun.serve()` listener on port 3000, generates the authorization URL, exchanges the callback code, and securely updates `PINTEREST_ACCESS_TOKEN` in `.env`.
 
-#### Option B: Direct Access Token
-If you already have a token from the Pinterest Developer Portal, paste it directly:
+#### Option B: Direct Token
 ```env
 PINTEREST_ACCESS_TOKEN=pina_...
 ```
@@ -104,13 +136,12 @@ PINTEREST_ACCESS_TOKEN=pina_...
 
 ### Claude Desktop
 Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
-
 ```json
 {
   "mcpServers": {
     "pinterest": {
       "command": "bun",
-      "args": ["run", "/path/to/pinterestmcp/src/index.ts"],
+      "args": ["run", "/absolute/path/to/pinterestmcp/src/index.ts"],
       "env": {
         "PINTEREST_ACCESS_TOKEN": "your_pinterest_access_token"
       }
@@ -120,7 +151,6 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 ```
 
 ### Antigravity / Cursor / Windsurf / Zed
-Point the MCP server configuration to:
 - **Command:** `bun`
 - **Arguments:** `["run", "<path-to-workspace>/src/index.ts"]`
 - **Environment:** `PINTEREST_ACCESS_TOKEN=<token>`
@@ -129,19 +159,21 @@ Point the MCP server configuration to:
 
 ## 🌐 Running in HTTP / SSE Mode
 
-If you want to run the server over HTTP/SSE instead of STDIO:
 ```bash
 bun run server --port 8080
 ```
-- SSE endpoint: `http://localhost:8080/sse`
-- Health check: `http://localhost:8080/health`
+- **SSE Stream:** `http://localhost:8080/sse`
+- **Messages:** `http://localhost:8080/messages`
+- **Health Check:** `http://localhost:8080/health`
 
 ---
 
-## 🧪 Testing
+## 🧪 Testing & Validation
 
-Run the test suite powered by `bun test`:
 ```bash
+# Type check with strict TypeScript compiler
+bunx tsc --noEmit
+
+# Run complete test suite (Domain, Security, Storage, HTTP Client, Services, MCP Presentation)
 bun test
 ```
-Runs unit tests for the SQLite store, Pinterest API client, and MCP tools in under 200ms.

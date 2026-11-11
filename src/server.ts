@@ -1,40 +1,45 @@
+/**
+ * Pinterest MCP Server bootstrap and factory.
+ * @module server
+ */
+
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { PinterestClient } from "./client/pinterest.ts";
+import { PinterestClient } from "./infrastructure/pinterest/pinterest-client.ts";
 import { LocalStore } from "./db/database.ts";
-import { registerAccountTools } from "./tools/account.ts";
-import { registerBoardTools } from "./tools/boards.ts";
-import { registerPinTools } from "./tools/pins.ts";
-import { registerAnalyticsTools } from "./tools/analytics.ts";
-import { registerSeoTools } from "./tools/seo.ts";
-import { registerResources } from "./resources/index.ts";
-import { registerPrompts } from "./prompts/index.ts";
+import { DatabaseConnection } from "./infrastructure/storage/database.ts";
+import { createPinterestMcpServer as createMcpServerInternal } from "./presentation/mcp/server.ts";
+import type { IPinterestClient } from "./core/domain/interfaces/pinterest-client.interface.ts";
 
 export interface CreateServerOptions {
-  client?: PinterestClient;
-  db?: LocalStore;
+  client?: IPinterestClient;
+  db?: LocalStore | DatabaseConnection;
   name?: string;
   version?: string;
 }
 
 export function createPinterestMcpServer(options: CreateServerOptions = {}) {
-  const client = options.client || new PinterestClient();
-  const db = options.db || new LocalStore();
+  const localStore = options.db instanceof LocalStore ? options.db : undefined;
+  const dbConnection =
+    options.db instanceof DatabaseConnection
+      ? options.db
+      : localStore?.databaseConnection ?? new DatabaseConnection();
 
-  const server = new McpServer({
-    name: options.name || "pinterest-mcp",
-    version: options.version || "1.0.0",
+  const client = options.client ?? new PinterestClient();
+
+  const container = createMcpServerInternal({
+    client,
+    db: dbConnection,
+    name: options.name,
+    version: options.version,
   });
 
-  // Register all tools
-  registerAccountTools(server, client, db);
-  registerBoardTools(server, client, db);
-  registerPinTools(server, client, db);
-  registerAnalyticsTools(server, client, db);
-  registerSeoTools(server);
-
-  // Register resources & prompts
-  registerResources(server, client, db);
-  registerPrompts(server);
-
-  return { server, client, db };
+  return {
+    server: container.server,
+    client: container.client,
+    db: localStore ?? new LocalStore(dbConnection.rawDb.filename || "pinterest.db"),
+    services: container.services,
+    repos: container.repos,
+  };
 }
+
+export { McpServer };

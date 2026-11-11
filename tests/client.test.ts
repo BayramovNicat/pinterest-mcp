@@ -33,9 +33,11 @@ describe("PinterestClient", () => {
     const mediaSource = await client.prepareMediaSourceFromPath(testImagePath);
 
     expect(mediaSource.source_type).toBe("image_base64");
-    expect(mediaSource.content_type).toBe("image/png");
-    expect(typeof mediaSource.data).toBe("string");
-    expect(mediaSource.data!.length).toBeGreaterThan(10);
+    if (mediaSource.source_type === "image_base64") {
+      expect(mediaSource.content_type).toBe("image/png");
+      expect(typeof mediaSource.data).toBe("string");
+      expect(mediaSource.data.length).toBeGreaterThan(10);
+    }
   });
 
   test("rejects non-existent local image file path", async () => {

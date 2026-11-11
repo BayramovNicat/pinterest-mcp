@@ -1,125 +1,70 @@
-import { Database } from "bun:sqlite";
+/**
+ * Backward compatibility database wrapper for LocalStore.
+ * Delegates to DatabaseConnection, ActionLogRepository, and CacheRepository.
+ * @module db/database
+ */
 
-export interface ActionLog {
-  id: number;
-  timestamp: string;
-  action: string;
-  target_id: string | null;
-  details: string | null;
-  status: string;
-}
+import { DatabaseConnection } from "../infrastructure/storage/database.ts";
+import { ActionLogRepository } from "../infrastructure/storage/action-log.repository.ts";
+import { CacheRepository } from "../infrastructure/storage/cache.repository.ts";
+import type { ActionLog } from "../core/domain/entities/action-log.ts";
+
+export type { ActionLog } from "../core/domain/entities/action-log.ts";
 
 export class LocalStore {
-  private db: Database;
+  private readonly connection: DatabaseConnection;
+  private readonly actionLogRepo: ActionLogRepository;
+  private readonly cacheRepo: CacheRepository;
 
   constructor(dbPath: string = "pinterest.db") {
-    this.db = new Database(dbPath);
-    this.initTables();
+    this.connection = new DatabaseConnection({ dbPath });
+    this.actionLogRepo = new ActionLogRepository(this.connection);
+    this.cacheRepo = new CacheRepository(this.connection);
   }
 
-  private initTables() {
-    this.db.run(`
-      CREATE TABLE IF NOT EXISTS action_logs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        timestamp TEXT NOT NULL,
-        action TEXT NOT NULL,
-        target_id TEXT,
-        details TEXT,
-        status TEXT NOT NULL
-      );
-    `);
+  public get databaseConnection(): DatabaseConnection {
+    return this.connection;
+  }
 
-    this.db.run(`
-      CREATE TABLE IF NOT EXISTS cache (
-        key TEXT PRIMARY KEY,
-        value TEXT NOT NULL,
-        updated_at TEXT NOT NULL
-      );
-    `);
+  public get actionLogs(): ActionLogRepository {
+    return this.actionLogRepo;
+  }
 
-    this.db.run(`
-      CREATE INDEX IF NOT EXISTS idx_action_logs_timestamp ON action_logs(timestamp DESC);
-    `);
+  public get cache(): CacheRepository {
+    return this.cacheRepo;
   }
 
   public logAction(
     action: string,
     targetId: string | null = null,
-    details: any = null,
+    details: unknown = null,
     status: string = "SUCCESS"
   ): ActionLog {
-    const timestamp = new Date().toISOString();
-    const detailsStr = details ? (typeof details === "string" ? details : JSON.stringify(details)) : null;
-
-    const query = this.db.prepare(`
-      INSERT INTO action_logs (timestamp, action, target_id, details, status)
-      VALUES ($timestamp, $action, $targetId, $details, $status)
-      RETURNING id, timestamp, action, target_id, details, status
-    `);
-
-    const result = query.get({
-      $timestamp: timestamp,
-      $action: action,
-      $targetId: targetId,
-      $details: detailsStr,
-      $status: status,
-    }) as ActionLog;
-
-    return result;
-  }
-
-  public getRecentActions(limit: number = 20): ActionLog[] {
-    const query = this.db.prepare(`
-      SELECT id, timestamp, action, target_id, details, status
-      FROM action_logs
-      ORDER BY id DESC
-      LIMIT $limit
-    `);
-    return query.all({ $limit: limit }) as ActionLog[];
-  }
-
-  public setCache(key: string, value: any): void {
-    const now = new Date().toISOString();
-    const valueStr = JSON.stringify(value);
-    const query = this.db.prepare(`
-      INSERT INTO cache (key, value, updated_at)
-      VALUES ($key, $value, $updated_at)
-      ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
-    `);
-    query.run({
-      $key: key,
-      $value: valueStr,
-      $updated_at: now,
+    return this.actionLogRepo.logAction({
+      action,
+      targetId,
+      details,
+      status,
     });
   }
 
+  public getRecentActions(limit: number = 20): ActionLog[] {
+    return this.actionLogRepo.getRecentActions(limit);
+  }
+
+  public setCache<T>(key: string, value: T): void {
+    this.cacheRepo.set(key, value);
+  }
+
   public getCache<T>(key: string, maxAgeSeconds?: number): T | null {
-    const query = this.db.prepare(`
-      SELECT value, updated_at FROM cache WHERE key = $key
-    `);
-    const row = query.get({ $key: key }) as { value: string; updated_at: string } | undefined;
-    if (!row) return null;
-
-    if (maxAgeSeconds) {
-      const updatedAtMs = new Date(row.updated_at).getTime();
-      const ageMs = Date.now() - updatedAtMs;
-      if (ageMs > maxAgeSeconds * 1000) {
-        return null;
-      }
-    }
-
-    try {
-      return JSON.parse(row.value) as T;
-    } catch {
-      return null;
-    }
+    return this.cacheRepo.get<T>(key, maxAgeSeconds);
   }
 
   public clearCache(): void {
-    this.db.run(`DELETE FROM cache;`);
+    this.cacheRepo.clear();
   }
 
   public close(): void {
-    this.db.close();
+    this.connection.close();
   }
 }

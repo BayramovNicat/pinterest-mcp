@@ -3,7 +3,10 @@
  *
  * Runs a local server on http://localhost:3000/callback to seamlessly
  * complete OAuth authentication and save PINTEREST_ACCESS_TOKEN into .env
+ * @module auth/oauth
  */
+
+import { SecretMasker } from "../infrastructure/security/secret-masker.ts";
 
 const DEFAULT_PORT = 3000;
 const SCOPES = [
@@ -14,7 +17,16 @@ const SCOPES = [
   "user_accounts:read",
 ].join(",");
 
-async function updateEnvFile(key: string, value: string) {
+interface TokenExchangeResponse {
+  readonly access_token: string;
+  readonly refresh_token?: string;
+  readonly token_type?: string;
+  readonly expires_in?: number;
+  readonly scope?: string;
+  readonly message?: string;
+}
+
+async function updateEnvFile(key: string, value: string): Promise<void> {
   const envPath = ".env";
   const file = Bun.file(envPath);
   let content = "";
@@ -33,7 +45,7 @@ async function updateEnvFile(key: string, value: string) {
   await Bun.write(envPath, content);
 }
 
-export async function runOAuthFlow() {
+export async function runOAuthFlow(): Promise<void> {
   const clientId = process.env.PINTEREST_APP_ID || process.env.PINTEREST_CLIENT_ID;
   const clientSecret = process.env.PINTEREST_APP_SECRET || process.env.PINTEREST_CLIENT_SECRET;
   const port = parseInt(process.env.PINTEREST_REDIRECT_PORT || `${DEFAULT_PORT}`, 10);
@@ -51,6 +63,8 @@ export async function runOAuthFlow() {
     process.exit(1);
   }
 
+  SecretMasker.registerSecret(clientSecret);
+
   const authUrl = `https://www.pinterest.com/oauth/?client_id=${clientId}&redirect_uri=${encodeURIComponent(
     redirectUri
   )}&response_type=code&scope=${encodeURIComponent(SCOPES)}`;
@@ -59,17 +73,17 @@ export async function runOAuthFlow() {
   console.log("       Pinterest OAuth 2.0 Setup (Bun Native)         ");
   console.log("=======================================================\n");
   console.log("1. Open the following link in your browser to authorize:");
-  console.log(`\n   \x1b[36m${authUrl}\x1b[0m\n`);
+  console.log(`\n   \x1b[36${authUrl}\x1b[0m\n`);
   console.log(`2. Waiting for callback at ${redirectUri} ...`);
 
-  let resolveCompletion: () => void;
+  let resolveCompletion: () => void = () => {};
   const completionPromise = new Promise<void>((resolve) => {
     resolveCompletion = resolve;
   });
 
   const server = Bun.serve({
     port,
-    async fetch(req) {
+    async fetch(req: Request): Promise<Response> {
       const url = new URL(req.url);
 
       if (url.pathname === "/callback") {
@@ -77,14 +91,14 @@ export async function runOAuthFlow() {
         const error = url.searchParams.get("error");
 
         if (error) {
-          return new Response(`<h1>Authentication Failed</h1><p>${error}</p>`, {
+          return new Response(`<h1>Authentication Failed</h1><p>${SecretMasker.mask(error)}</p>`, {
             headers: { "Content-Type": "text/html" },
             status: 400,
           });
         }
 
         if (!code) {
-          return new Response(`<h1>Missing Authorization Code</h1>`, {
+          return new Response("<h1>Missing Authorization Code</h1>", {
             headers: { "Content-Type": "text/html" },
             status: 400,
           });
@@ -97,7 +111,7 @@ export async function runOAuthFlow() {
           const tokenRes = await fetch("https://api.pinterest.com/v5/oauth/token", {
             method: "POST",
             headers: {
-              "Authorization": `Basic ${basicAuth}`,
+              Authorization: `Basic ${basicAuth}`,
               "Content-Type": "application/x-www-form-urlencoded",
             },
             body: new URLSearchParams({
@@ -107,11 +121,12 @@ export async function runOAuthFlow() {
             }),
           });
 
-          const tokenData = (await tokenRes.json()) as any;
+          const tokenData = (await tokenRes.json()) as TokenExchangeResponse;
 
-          if (!tokenRes.ok) {
-            console.error("Token exchange failed:", tokenData);
-            return new Response(`<h1>Token Exchange Failed</h1><pre>${JSON.stringify(tokenData, null, 2)}</pre>`, {
+          if (!tokenRes.ok || !tokenData.access_token) {
+            const masked = SecretMasker.maskObject(tokenData);
+            console.error("Token exchange failed:", masked);
+            return new Response(`<h1>Token Exchange Failed</h1><pre>${JSON.stringify(masked, null, 2)}</pre>`, {
               headers: { "Content-Type": "text/html" },
               status: 400,
             });
@@ -144,27 +159,27 @@ export async function runOAuthFlow() {
               headers: { "Content-Type": "text/html" },
             }
           );
-        } catch (err: any) {
-          console.error("Error exchanging token:", err);
-          return new Response(`<h1>Internal Error</h1><p>${err.message}</p>`, {
+        } catch (err: unknown) {
+          const message = SecretMasker.mask(err instanceof Error ? err.message : String(err));
+          console.error("Error exchanging token:", message);
+          return new Response(`<h1>Internal Error</h1><p>${message}</p>`, {
             headers: { "Content-Type": "text/html" },
             status: 500,
           });
         }
       }
 
-      return new Response("Pinterest OAuth Server running. Please visit the authorization URL.");
+      return new Response("Not Found", { status: 404 });
     },
   });
 
   await completionPromise;
-  server.stop();
-  console.log("OAuth server closed. You are ready to start Pinterest MCP!\n");
+  server.stop(true);
 }
 
 if (import.meta.main) {
   runOAuthFlow().catch((err) => {
-    console.error("OAuth flow error:", err);
+    console.error("OAuth error:", err);
     process.exit(1);
   });
 }
