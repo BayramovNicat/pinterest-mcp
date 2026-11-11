@@ -1,6 +1,7 @@
 /**
- * Utility for masking secrets, access tokens, and sensitive credentials in logs and errors.
- * @module infrastructure/security/secret-masker
+ * Core security utility for masking secrets, access tokens, and sensitive credentials.
+ * Pure TypeScript with zero external or runtime dependencies.
+ * @module core/security/secret-masker
  */
 
 export class SecretMasker {

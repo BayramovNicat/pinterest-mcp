@@ -5,7 +5,7 @@
 
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { AccountService } from "../../../application/services/account.service.ts";
-import { SecretMasker } from "../../../infrastructure/security/secret-masker.ts";
+import { SecretMasker } from "../../../core/security/secret-masker.ts";
 
 export function registerAccountTools(server: McpServer, accountService: AccountService): void {
   // 1. Get Account

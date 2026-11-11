@@ -18,14 +18,15 @@ src/
 │   │   ├── entities/               # Account, Board, Pin, Analytics, ActionLog
 │   │   ├── value-objects/          # BoardId, PinId, MediaPayload (Discriminated Unions), HexColor, BoardPrivacy
 │   │   └── errors/                 # DomainError hierarchy (Auth, RateLimit, NotFound, Validation, Security)
-│   └── interfaces/                 # Ports: IPinterestClient, IActionLogRepository, ICacheRepository
+│   ├── interfaces/                 # Ports: IPinterestClient, IActionLogRepository, ICacheRepository
+│   └── security/                   # SecretMasker (Pure Credential Redaction Policy)
 │
 ├── application/                    # Application Business Rules & Use Cases
 │   └── services/                   # PinPublishingService, BoardManagementService, SeoOptimizerService, AccountService
 │
 ├── infrastructure/                 # Concrete Secondary Adapters
 │   ├── config/                     # Strict Zod environment validation (env.ts)
-│   ├── security/                   # PathSanitizer (CWE-22 Guard), SecretMasker (Credential Redaction)
+│   ├── security/                   # PathSanitizer (CWE-22 Local Filesystem Guard)
 │   ├── storage/                    # bun:sqlite in WAL mode, prepared statement caching, migrations
 │   ├── pinterest/                  # ResilientHttpClient (exponential backoff, jitter, rate-limit tracking)
 │   └── server/                     # Transport orchestration (STDIO & Bun.serve SSE/HTTP)

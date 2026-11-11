@@ -82,7 +82,7 @@ export function createPinterestMcpServer(options: CreateServerOptions = {}): Mcp
   registerSeoTools(server, seoOptimizerService);
 
   // 6. Register Resources & Prompts via server.registerResource / server.registerPrompt
-  registerResources(server, client, actionLogRepo);
+  registerResources(server, accountService, boardManagementService);
   registerPrompts(server);
 
   return {

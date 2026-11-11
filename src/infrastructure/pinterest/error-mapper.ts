@@ -9,7 +9,7 @@ import { RateLimitExceededError } from "../../core/domain/errors/rate-limit-erro
 import { ResourceNotFoundError } from "../../core/domain/errors/not-found-error.ts";
 import { ValidationError } from "../../core/domain/errors/validation-error.ts";
 import { PinterestApiError } from "../../core/domain/errors/api-error.ts";
-import { SecretMasker } from "../security/secret-masker.ts";
+import { SecretMasker } from "../../core/security/secret-masker.ts";
 import type { PinterestApiErrorPayload } from "./types.ts";
 
 export class PinterestErrorMapper {

@@ -6,7 +6,7 @@
  * @module auth/oauth
  */
 
-import { SecretMasker } from "../infrastructure/security/secret-masker.ts";
+import { SecretMasker } from "../core/security/secret-masker.ts";
 
 const DEFAULT_PORT = 3000;
 const SCOPES = [

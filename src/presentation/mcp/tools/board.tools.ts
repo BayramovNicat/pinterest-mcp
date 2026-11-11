@@ -5,7 +5,7 @@
 
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { BoardManagementService } from "../../../application/services/board-management.service.ts";
-import { SecretMasker } from "../../../infrastructure/security/secret-masker.ts";
+import { SecretMasker } from "../../../core/security/secret-masker.ts";
 import {
   ListBoardsInputSchema,
   GetBoardInputSchema,

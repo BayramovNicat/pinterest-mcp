@@ -1,17 +1,18 @@
 /**
  * MCP resource registrations for Pinterest account, boards, and audit activity.
+ * Delegates exclusively to Application Layer services.
  * @module presentation/mcp/resources/pinterest.resources
  */
 
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { IPinterestClient } from "../../../core/interfaces/pinterest-client.interface.ts";
-import type { IActionLogRepository } from "../../../core/interfaces/action-log-repository.interface.ts";
-import { SecretMasker } from "../../../infrastructure/security/secret-masker.ts";
+import type { AccountService } from "../../../application/services/account.service.ts";
+import type { BoardManagementService } from "../../../application/services/board-management.service.ts";
+import { SecretMasker } from "../../../core/security/secret-masker.ts";
 
 export function registerResources(
   server: McpServer,
-  client: IPinterestClient,
-  actionLogRepo: IActionLogRepository
+  accountService: AccountService,
+  boardService: BoardManagementService
 ): void {
   // 1. Account Resource
   server.registerResource(
@@ -23,7 +24,7 @@ export function registerResources(
     },
     async (uri) => {
       try {
-        const account = await client.getAccount();
+        const account = await accountService.getAccount();
         return {
           contents: [
             {
@@ -58,7 +59,7 @@ export function registerResources(
     },
     async (uri) => {
       try {
-        const boards = await client.listBoards({ pageSize: 50 });
+        const boards = await boardService.listBoards({ pageSize: 50 });
         return {
           contents: [
             {
@@ -92,7 +93,7 @@ export function registerResources(
       mimeType: "application/json",
     },
     async (uri) => {
-      const logs = actionLogRepo.getRecentActions(30);
+      const logs = accountService.getRecentActivity(30);
       return {
         contents: [
           {

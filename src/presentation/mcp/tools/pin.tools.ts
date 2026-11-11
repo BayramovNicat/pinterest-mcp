@@ -6,7 +6,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { PinPublishingService } from "../../../application/services/pin-publishing.service.ts";
 import type { MediaPayload } from "../../../core/domain/value-objects/media-source.ts";
-import { SecretMasker } from "../../../infrastructure/security/secret-masker.ts";
+import { SecretMasker } from "../../../core/security/secret-masker.ts";
 import {
   ListPinsInputSchema,
   GetPinInputSchema,

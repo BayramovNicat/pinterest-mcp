@@ -12,6 +12,7 @@ import type { IActionLogRepository } from "../../core/interfaces/action-log-repo
 import type { ICacheRepository } from "../../core/interfaces/cache-repository.interface.ts";
 import type { PinterestAccount } from "../../core/domain/entities/account.ts";
 import type { RateLimitStatus } from "../../core/domain/entities/analytics.ts";
+import type { ActionLog } from "../../core/domain/entities/action-log.ts";
 
 export class AccountService {
   constructor(
@@ -44,6 +45,10 @@ export class AccountService {
 
   public getRateLimitStatus(): RateLimitStatus {
     return this.pinterestClient.getRateLimitStatus();
+  }
+
+  public getRecentActivity(limit: number = 30): ActionLog[] {
+    return this.actionLogRepo.getRecentActions(limit);
   }
 
   public async getPinAnalytics(pinId: string, params: PinAnalyticsParams): Promise<Record<string, unknown>> {

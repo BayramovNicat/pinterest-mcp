@@ -6,7 +6,7 @@
 
 import type { RateLimitStatus } from "../../core/domain/entities/analytics.ts";
 import { PinterestAuthenticationError } from "../../core/domain/errors/authentication-error.ts";
-import { SecretMasker } from "../security/secret-masker.ts";
+import { SecretMasker } from "../../core/security/secret-masker.ts";
 import { PinterestErrorMapper } from "./error-mapper.ts";
 
 export interface HttpClientOptions {

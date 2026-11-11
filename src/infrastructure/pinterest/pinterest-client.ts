@@ -23,7 +23,7 @@ import type { RateLimitStatus } from "../../core/domain/entities/analytics.ts";
 import type { PinterestMediaSource } from "../../core/domain/value-objects/media-source.ts";
 import { ResilientHttpClient } from "./http-client.ts";
 import { PathSanitizer } from "../security/path-sanitizer.ts";
-import { SecretMasker } from "../security/secret-masker.ts";
+import { SecretMasker } from "../../core/security/secret-masker.ts";
 import type {
   PinterestApiAccountDto,
   PinterestApiBoardDto,
