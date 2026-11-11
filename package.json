@@ -12,7 +12,14 @@
     "dev": "bun --watch src/index.ts",
     "server": "bun run src/index.ts --http",
     "auth": "bun run src/auth/oauth.ts",
-    "test": "bun test"
+    "typecheck": "bunx tsc --noEmit",
+    "test": "bun test",
+    "check": "bun run typecheck && bun run test",
+    "graphify": "graphify update .",
+    "graphify:watch": "graphify watch .",
+    "graphify:query": "graphify query",
+    "graphify:affected": "graphify affected",
+    "graphify:hubs": "graphify god-nodes"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",
